@@ -19,7 +19,7 @@ class _HomeState extends State<Home> {
   final List<Widget> _fragmentScreens = [
     HomeFragmentScreen(),
     ProfileFragmentScreen(),
-    ReportCrimeScreen(),
+    ReportCrimeScreen(onReportSubmitted: () {  },),
   ];
 
   // List of navigation button properties

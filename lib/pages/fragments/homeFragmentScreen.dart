@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:particles_fly/particles_fly.dart';
 
 import '../../api/api.dart';
+import '../people/preferences/current_user.dart';
 
 class HomeFragmentScreen extends StatefulWidget {
   @override
@@ -120,6 +121,15 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      // Display the username of the person who posted the report
+                      Text(
+                        "Reported by: ${post['username']}",
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
                         ),
                       ),
                       SizedBox(height: 8),
