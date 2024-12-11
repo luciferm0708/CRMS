@@ -1,5 +1,6 @@
 import 'package:crime_record_management_system/pages/fragments/home.dart';
 import 'package:crime_record_management_system/pages/get_started.dart';
+import 'package:crime_record_management_system/pages/logInInterface.dart';
 import 'package:crime_record_management_system/pages/people/authentication/logIn.dart';
 import 'package:crime_record_management_system/pages/people/preferences/people_preferences.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
           {
             if(dataSnapShot.data == null)
               {
-                return Login();
+                return Logininterface();
               }
             else
               {

@@ -1,6 +1,7 @@
 import 'package:crime_record_management_system/background/background.dart';
 import 'package:crime_record_management_system/pages/people/authentication/logIn.dart';
 import 'package:crime_record_management_system/pages/people/authentication/peopleRegister.dart';
+import 'package:crime_record_management_system/pages/professionals/authentication/proffessionalRegister.dart';
 import 'package:flutter/material.dart';
 import 'package:crime_record_management_system/components/button.dart';
 import 'package:crime_record_management_system/components/selection_tile.dart';
@@ -19,9 +20,9 @@ class _UserTypeState extends State<UserType> {
   void navigateToRegisterPage() {
     if (selectedUserType == "People") {
       Navigator.push(context, MaterialPageRoute(builder: (context) => const PeopleRegister()));
-    } /*else if (selectedUserType == "Company") {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const CompanyRegister()));
-    } else if (selectedUserType == "Shopkeeper") {
+    } else if (selectedUserType == "Professionals") {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfessionalRegistration()));
+    } /*else if (selectedUserType == "Shopkeeper") {
       Navigator.push(context, MaterialPageRoute(builder: (context) => const ShopkeeperRegister()));
     } else if (selectedUserType == "General People") {
       Navigator.push(context, MaterialPageRoute(builder: (context) => const GeneralPeopleRegister()));
@@ -62,8 +63,8 @@ class _UserTypeState extends State<UserType> {
               ),
               const SizedBox(height: 10),
               MySelectionTile(
-                title: "Admin",
-                value: "Admin",
+                title: "Professionals",
+                value: "Professionals",
                 groupValue: selectedUserType,
                 onChanged: (value) {
                   setState(() {

@@ -4,37 +4,44 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
-    $fileTmpPath = $_FILES['image']['tmp_name'];
-    $fileType = mime_content_type($fileTmpPath);
+$img = [];
 
-    // Log file info for debugging
-    error_log("Uploaded file type: " . $fileType);
-    error_log("Uploaded file path: " . $fileTmpPath);
-
-    // Verify that the uploaded file is an image
-    if (strpos($fileType, 'image/') === 0) {
-        // Read the image content
-        $imageData = file_get_contents($fileTmpPath);
-
-        try {
-            // Insert the image into the database
-            $stmt = $pdo->prepare("INSERT INTO peoproImage (img) VALUES (:img)");
-            $stmt->bindParam(':img', $imageData, PDO::PARAM_LOB);
-            $stmt->execute();
-
-            // Response
-            echo json_encode(["success" => "Image uploaded successfully", "id" => $pdo->lastInsertId()]);
-        } catch (PDOException $e) {
-            error_log("Database error: " . $e->getMessage());
-            echo json_encode(["error" => "Image upload failed: " . $e->getMessage()]);
-        }
-    } else {
-        echo json_encode(["error" => "Uploaded file is not an image."]);
-    }
-} else {
-    error_log("Upload error: " . $_FILES['image']['error']);
-    echo json_encode(["error" => "No image file received or upload error."]);
+$upload_dir = "proImageUploads/";
+if (!is_dir($upload_dir)) {
+    mkdir($upload_dir, 0777, true); // Create directory if it doesn't exist
 }
 
+if (isset($_FILES['img']) && is_array($_FILES['img']['name'])) {
+    // Handle multiple file uploads
+    for ($i = 0; $i < count($_FILES['image']['name']); $i++) {
+        $tmp_name = $_FILES['img']['tmp_name'][$i];
+        $original_name = $_FILES['img']['name'][$i];
+
+        // Generate a unique filename to avoid conflicts
+        $target_file = $upload_dir . uniqid() . '_' . basename($original_name);
+
+        if (move_uploaded_file($tmp_name, $target_file)) {
+            // Store the public URL of the uploaded file
+            $img[] = "http://192.168.68.106/api_crms/people/" . $target_file;
+        } else {
+            echo json_encode(["status" => "error", "message" => "Failed to upload file: " . $original_name]);
+            exit;
+        }
+    }
+}
+
+// Convert the array of image URLs to a JSON string
+$image_urls_json = json_encode($img);
+
+// Insert data into the database
+$stmt = $connector->prepare("INSERT INTO peoproImage (img) VALUES (?)");
+$stmt->bind_param("s", $image_urls_json);
+
+if ($stmt->execute()) {
+    echo json_encode(["status" => "success", "data" => "Image submitted successfully"]);
+} else {
+    echo json_encode(["status" => "error", "message" => "Failed to save image URLs to the database."]);
+}
+$stmt->close();
+$connector->close();
 ?>

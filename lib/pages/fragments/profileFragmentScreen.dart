@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:particles_fly/particles_fly.dart';
@@ -9,6 +12,7 @@ import 'package:crime_record_management_system/pages/people/authentication/logIn
 import 'package:crime_record_management_system/pages/people/preferences/people_preferences.dart';
 import '../../api/api.dart';
 import '../people/model/people.dart';
+import 'dart:typed_data';
 
 class ProfileFragmentScreen extends StatefulWidget {
   @override
@@ -17,36 +21,67 @@ class ProfileFragmentScreen extends StatefulWidget {
 
 class _ProfileFragmentScreenState extends State<ProfileFragmentScreen> {
   final CurrentUser _currentPeople = Get.put(CurrentUser());
-  File? _profileImage; // For mobile builds
-  XFile? _pickedFile; // For web builds
+  List<Uint8List> _imageDataList = [];
+  File? _selectedImage; // To hold the selected image file
 
+  @override
   @override
   void initState() {
     super.initState();
-    _currentPeople.getPeopleInfo(); // Fetch user data on initialization
+    _currentPeople.getPeopleInfo();
+    _loadProfileImage();
   }
 
-  Future<void> uploadProfileImage(XFile pickedFile) async {
-    try {
-      final uri = Uri.parse(API.peoproImg);
-      final request = http.MultipartRequest('POST', uri);
+  void _loadProfileImage() async {
+    final savedImageUrl = await PeoplePref.getProfileImageUrl(); // Fetch saved URL
+    if (savedImageUrl != null) {
+      setState(() {
+        _currentPeople.updateProfileImageUrl(savedImageUrl); // Update observable
+      });
+    }
+  }
 
-      if (File(pickedFile.path).existsSync()) {
-        print("Image path: ${pickedFile.path}");
-        request.files.add(await http.MultipartFile.fromPath('image', pickedFile.path));
-      } else {
-        print("File does not exist.");
+  Future<void> uploadProfileImage() async {
+    try {
+      if (_imageDataList.isEmpty) {
+        Fluttertoast.showToast(msg: "No images selected for upload.");
         return;
       }
 
+      final uri = Uri.parse(API.peoproImg);
+      final request = http.MultipartRequest('POST', uri);
+
+      for (var i = 0; i < _imageDataList.length; i++) {
+        var multipartFile = http.MultipartFile.fromBytes(
+          'image', // Match the PHP script's key
+          _imageDataList[i],
+          filename: 'uploaded_image_$i.jpg',
+        );
+        request.files.add(multipartFile);
+      }
+
       final response = await request.send();
+      final responseData = await http.Response.fromStream(response);
+
       if (response.statusCode == 200) {
-        print("Image uploaded successfully.");
+        final responseJson = json.decode(responseData.body);
+
+        if (responseJson['status'] == 'success') {
+          final uploadedImageUrl = responseJson['data'][0]; // Use the first URL
+          await PeoplePref.saveProfileImageUrl(uploadedImageUrl); // Save URL persistently
+          setState(() {
+            _currentPeople.updateProfileImageUrl(uploadedImageUrl); // Update observable
+          });
+          Fluttertoast.showToast(msg: "Profile image updated successfully!");
+        } else {
+          Fluttertoast.showToast(msg: "Failed to upload images: ${responseJson['message']}");
+        }
       } else {
-        print("Image upload failed with status code: ${response.statusCode}");
+        Fluttertoast.showToast(msg: "Error uploading image. Status: ${response.statusCode}");
       }
     } catch (e) {
-      print("Error uploading image: $e");
+      print("Error uploading images: $e");
+      Fluttertoast.showToast(msg: "An error occurred. Please try again.");
     }
   }
 
@@ -54,11 +89,20 @@ class _ProfileFragmentScreenState extends State<ProfileFragmentScreen> {
     try {
       final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
-        setState(() {
-          _pickedFile = pickedFile; // Store picked file for later use
-          _profileImage = File(pickedFile.path); // For non-web builds
-        });
-        await uploadProfileImage(pickedFile); // Pass XFile for upload
+        if (kIsWeb) {
+          // Web-specific handling
+          final imageData = await pickedFile.readAsBytes(); // Perform async operation first
+          setState(() {
+            _imageDataList.add(imageData); // Update state synchronously
+          });
+        } else {
+          // Mobile-specific handling
+          final imageFile = File(pickedFile.path);
+          setState(() {
+            _selectedImage = imageFile; // Update state synchronously
+            _imageDataList.add(imageFile.readAsBytesSync());
+          });
+        }
       }
     } catch (e) {
       print("Error picking image: $e");
@@ -66,21 +110,17 @@ class _ProfileFragmentScreenState extends State<ProfileFragmentScreen> {
   }
 
   void logOutPeople(BuildContext context) async {
-    var resultRes = await showDialog<String>(
+    final resultRes = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.black54,
-          title: Text(
+          title: const Text(
             "Log Out",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
           ),
-          content: Text(
-            "Are you sure?\nYou want to logout from the CRMS?",
+          content: const Text(
+            "Are you sure?\nYou want to log out from the CRMS?",
             style: TextStyle(color: Colors.white),
           ),
           actions: [
@@ -88,7 +128,7 @@ class _ProfileFragmentScreenState extends State<ProfileFragmentScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 "No",
                 style: TextStyle(color: Colors.red),
               ),
@@ -97,7 +137,7 @@ class _ProfileFragmentScreenState extends State<ProfileFragmentScreen> {
               onPressed: () {
                 Navigator.of(context).pop("loggedOut");
               },
-              child: Text(
+              child: const Text(
                 "Yes",
                 style: TextStyle(color: Colors.red),
               ),
@@ -109,13 +149,11 @@ class _ProfileFragmentScreenState extends State<ProfileFragmentScreen> {
 
     if (resultRes == "loggedOut") {
       await PeoplePref.removePeopleInfo();
-      Future.delayed(Duration(milliseconds: 300), () {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const Login()),
-              (Route<dynamic> route) => false,
-        );
-      });
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const Login()),
+            (Route<dynamic> route) => false,
+      );
     }
   }
 
@@ -125,10 +163,7 @@ class _ProfileFragmentScreenState extends State<ProfileFragmentScreen> {
         borderRadius: BorderRadius.circular(12),
         color: Colors.grey,
       ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
           Icon(
@@ -140,10 +175,7 @@ class _ProfileFragmentScreenState extends State<ProfileFragmentScreen> {
           Expanded(
             child: Text(
               peopleData,
-              style: const TextStyle(
-                fontSize: 15,
-                color: Colors.white,
-              ),
+              style: const TextStyle(fontSize: 15, color: Colors.white),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -162,9 +194,7 @@ class _ProfileFragmentScreenState extends State<ProfileFragmentScreen> {
         valueListenable: _currentPeople.currentPeople,
         builder: (context, people, child) {
           if (people.username.isEmpty) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           return Stack(
@@ -188,12 +218,11 @@ class _ProfileFragmentScreenState extends State<ProfileFragmentScreen> {
                           onTap: _pickImage,
                           child: CircleAvatar(
                             radius: 50,
-                            backgroundImage: _profileImage != null
-                                ? FileImage(_profileImage!) // For mobile builds
-                                : _pickedFile != null
-                                ? NetworkImage(_pickedFile!.path) // For web builds
-                                : const AssetImage('assets/crms.png'),
+                            backgroundImage: _currentPeople.profileImageUrl.value.isNotEmpty
+                                ? NetworkImage(_currentPeople.profileImageUrl.value)
+                                : AssetImage('assets/crms.png') as ImageProvider,
                           ),
+
                         ),
                         const SizedBox(height: 8),
                         const Text(
@@ -222,16 +251,10 @@ class _ProfileFragmentScreenState extends State<ProfileFragmentScreen> {
                         },
                         borderRadius: BorderRadius.circular(32),
                         child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 30,
-                            vertical: 12,
-                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                           child: Text(
                             "Log Out",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                            ),
+                            style: TextStyle(color: Colors.black, fontSize: 16),
                           ),
                         ),
                       ),

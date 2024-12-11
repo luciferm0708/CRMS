@@ -1,26 +1,29 @@
 import 'dart:convert';
 
 import 'package:crime_record_management_system/background/background.dart';
+import 'package:crime_record_management_system/pages/fragments/homeFragmentScreen.dart';
+import 'package:crime_record_management_system/pages/professionals/profFragments/profHome.dart';
+import 'package:crime_record_management_system/pages/professionals/profFragments/profHomeFragmentScreen.dart';
 import 'package:crime_record_management_system/pages/userType.dart';
 import 'package:flutter/material.dart';
 import 'package:crime_record_management_system/components/text_field.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import '../../../api/api.dart';
 import '../../../components/button.dart';
-import '../model/people.dart';
+import '../../../api/api.dart';
 import '../../fragments/home.dart';
 import 'package:http/http.dart' as http;
 
-import '../preferences/people_preferences.dart';
+import '../model/professional.dart';
+import '../profPreferences/professional_preference.dart';
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class ProfLogin extends StatefulWidget {
+  const ProfLogin({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<ProfLogin> createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> {
+class _LoginState extends State<ProfLogin> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passController = TextEditingController();
   bool showPassword = false;
@@ -28,10 +31,10 @@ class _LoginState extends State<Login> {
   // Define a GlobalKey for the form
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  loginPeople() async {
+  loginProf() async {
     try {
       var res = await http.post(
-        Uri.parse(API.logIn),
+        Uri.parse(API.prof_login),
         body: {
           "email": emailController.text.trim(),
           "pass": passController.text.trim(),
@@ -42,13 +45,13 @@ class _LoginState extends State<Login> {
         if (resBodyLogIn['success'] == true) {
           Fluttertoast.showToast(msg: "You are Logged In!");
 
-          People peopleInfo = People.fromJson(resBodyLogIn["peopleData"]);
-          await PeoplePref.storePeopleInfo(peopleInfo);
+          Professional professionalInfo = Professional.fromJson(resBodyLogIn["professionalData"]);
+          await ProfessionalPref.storeProfessionalInfo(professionalInfo);
 
           await Future.delayed(const Duration(milliseconds: 2000), () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const Home()),
+              MaterialPageRoute(builder: (context) => ProfHome(),)
             );
           });
 
@@ -160,7 +163,7 @@ class _LoginState extends State<Login> {
                         borderColor: Colors.transparent,
                         onTap: () {
                           if (formKey.currentState!.validate()) {
-                            loginPeople();
+                            loginProf();
                           }
                         },
                         height: 45.0,  // Custom height
