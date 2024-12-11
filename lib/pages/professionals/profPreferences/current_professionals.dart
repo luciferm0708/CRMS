@@ -13,6 +13,9 @@ class CurrentProfessional {
   Future<void> getProfessionalInfo() async {
     try {
       Professional? getProfessionalInfoFromLocalStorage = await ProfessionalPref.readProfessional();
+      if (getProfessionalInfoFromLocalStorage == null) {
+        print("No professional info found. Using default.");
+      }
       currentProfessional.value = getProfessionalInfoFromLocalStorage ?? emptyProfessional();
     } catch (e) {
       print("Error fetching professional info: $e");

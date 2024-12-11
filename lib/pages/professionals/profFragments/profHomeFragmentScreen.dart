@@ -1,3 +1,4 @@
+import 'package:crime_record_management_system/pages/professionals/profPreferences/current_professionals.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -18,10 +19,12 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
   List<dynamic> _reports = [];
   String _selectedForum = "All";
   final _forums = ["All", "Mirpur", "Mohammadpur", "Savar"];
+  final currentProfessional = CurrentProfessional();
 
   @override
   void initState() {
     super.initState();
+    currentProfessional.getProfessionalInfo();
     _fetchReports(); // Fetch reports when the screen is loaded
   }
 
@@ -51,7 +54,7 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
         Uri.parse(API.assign_crime),
         body: {
           'report_id': reportId.toString(),
-          'professional_id': widget.professionalId.toString(),
+          'professional_id': currentProfessional.professionalId.toString(),
         },
       );
 

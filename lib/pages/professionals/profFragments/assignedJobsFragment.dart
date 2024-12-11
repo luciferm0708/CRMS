@@ -17,49 +17,33 @@ class AssignedJobsFragmentScreen extends StatefulWidget {
 
 class _AssignedJobsFragmentScreenState extends State<AssignedJobsFragmentScreen> {
   List<dynamic> _assignedJobs = [];
-
+  final currentProfessional = CurrentProfessional();
   @override
   void initState() {
     super.initState();
-    CurrentProfessional().getProfessionalInfo().then((_) {
-      print("Fetching jobs for professional_id: ${widget.professionalId}");
-      _fetchAssignedJobs();
-    }).catchError((e) {
-      print("Error fetching professional info: $e");
-      Fluttertoast.showToast(msg: "Error fetching professional info.");
-    });
-    print("AssignedJobsFragmentScreen initialized with professionalId: ${widget.professionalId}");
+    currentProfessional.getProfessionalInfo();
     _fetchAssignedJobs();
   }
 
   Future<void> _fetchAssignedJobs() async {
-    if (widget.professionalId <= 0) {
-      print("Invalid professional ID: ${widget.professionalId}");
-      Fluttertoast.showToast(msg: "Invalid professional ID. Please log in again.");
-      return;
-    }
-
-    final url = "${API.fetchAssignedJobs}?professional_id=${widget.professionalId.toString()}";
-    print("Fetching jobs with URL: $url");
-
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await http.post(
+        Uri.parse(API.fetchAssignedJobs),
+        body: {
+          'professional_id': currentProfessional.professionalId.toString(),
+        },
+      );
+
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print("Parsed data: $data");
-
         if (data['success']) {
           setState(() {
             _assignedJobs = data['jobs'] ?? [];
           });
-          if (_assignedJobs.isEmpty) {
-            print("No jobs found for professional_id: ${widget.professionalId}");
-          }
         } else {
-          print("API success was false, message: ${data['message']}");
           Fluttertoast.showToast(msg: data['message']);
         }
       } else {
@@ -70,6 +54,7 @@ class _AssignedJobsFragmentScreenState extends State<AssignedJobsFragmentScreen>
       Fluttertoast.showToast(msg: "An error occurred while fetching jobs.");
     }
   }
+
 
   Future<void> _updateJobProgress(int jobId, double progress) async {
     try {
