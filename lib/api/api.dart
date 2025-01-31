@@ -1,5 +1,5 @@
 class API{
-  static const hostConnection = "http://192.168.68.106/api_crms";
+  static const hostConnection = "http://192.168.68.101/api_crms";
   static const hostConnectionPeople = "$hostConnection/people";
 
   static const peopleRegister = "$hostConnection/people/peopleReg.php";
@@ -15,4 +15,6 @@ class API{
   static const assign_crime = "$hostConnection/professionals/assignCrime.php";
   static const updateAssignedJobs = "$hostConnection/professionals/updatejobsassigned.php";
   static const fetchAssignedJobs = "$hostConnection/professionals/fetchassigned.php";
+  static const reactToPost = "$hostConnection/reactions/reactions.php";
+  static const addComment = "$hostConnection/comment/comments.php";
 }

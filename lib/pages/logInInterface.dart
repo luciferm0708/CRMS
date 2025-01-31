@@ -1,8 +1,6 @@
 import 'package:crime_record_management_system/background/background.dart';
 import 'package:crime_record_management_system/pages/people/authentication/logIn.dart';
-import 'package:crime_record_management_system/pages/people/authentication/peopleRegister.dart';
 import 'package:crime_record_management_system/pages/professionals/authentication/profLogin.dart';
-import 'package:crime_record_management_system/pages/professionals/authentication/proffessionalRegister.dart';
 import 'package:crime_record_management_system/pages/userType.dart';
 import 'package:flutter/material.dart';
 import 'package:crime_record_management_system/components/button.dart';
