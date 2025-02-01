@@ -25,12 +25,13 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
   @override
   void initState() {
     super.initState();
-    _loadSavedData();
+    //_loadSavedData();
     _fetchPosts();
+    _loadSavedPosts();
     currentUser.getPeopleInfo();
   }
 
-  Future<void> _saveCommentsLocally() async{
+  /*Future<void> _saveCommentsLocally() async{
     SharedPreferences commentPrefs = await SharedPreferences.getInstance();
     String jsonComments = jsonEncode(_posts.map((post){
       return{
@@ -82,9 +83,9 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
         }
       });
     }
-  }
+  }*/
 
-  Future<void> _fetchPosts() async {
+  /*Future<void> _fetchPosts() async {
     try {
       final response = await http.get(Uri.parse(API.fetchReports));
       if (response.statusCode == 200) {
@@ -123,6 +124,63 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     } catch (e) {
       print("Error fetching posts: $e");
     }
+  }*/
+  Future<void> _savePostsLocally() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('saved_posts', jsonEncode(_posts));
+  }
+
+  Future<void> _loadSavedPosts() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? savedPosts = prefs.getString('saved_posts');
+    if (savedPosts != null) {
+      setState(() {
+        _posts = List<Map<String, dynamic>>.from(jsonDecode(savedPosts));
+      });
+    }
+  }
+
+  Future<void> _fetchPosts() async {
+    try {
+      final response = await http.get(Uri.parse(API.fetchReports));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['status'] == 'success') {
+          List<dynamic> newPosts = (data['reports'] as List).map((p) {
+            return {
+              ...Map<String, dynamic>.from(p),
+              'id': int.tryParse(p['id'].toString()) ?? 0,
+              'comments': (p['comments'] is List)
+                  ? List<Map<String, dynamic>>.from(p['comments'].map((c) => Map<String, dynamic>.from(c as Map)))
+                  : [],
+              'reactions': p['reactions'] != null ? Map<String, dynamic>.from(p['reactions'] as Map) : {},
+              'user_reaction': p['user_reaction'],
+            };
+          }).toList();
+
+          setState(() {
+            for (var newPost in newPosts) {
+              int existingIndex = _posts.indexWhere((p) => p['id'] == newPost['id']);
+              if (existingIndex != -1) {
+                // Preserve local reactions/comments for the current user
+                newPost['comments'] = _posts[existingIndex]['comments'];
+                newPost['reactions'] = _posts[existingIndex]['reactions'];
+                newPost['user_reaction'] = _posts[existingIndex]['user_reaction'];
+              }
+            }
+            _posts = newPosts;
+            _savePostsLocally();
+          });
+        } else {
+          print("Failed to fetch posts: ${data['message']}");
+        }
+      } else {
+        print("Failed to load posts: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error fetching posts: $e");
+    }
   }
 
   Future<void> _reactToPost(dynamic postId, String reactionType) async {
@@ -130,16 +188,32 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
       int reportId = int.tryParse(postId.toString()) ?? 0;
       String peopleID = currentUser.currentPeople.value.people_id.toString();
 
-      print("Sending reaction request: report_id=$reportId, reaction_type=$reactionType, people_id=$peopleID");
-
-      var postIndex = _posts.indexWhere((post) => post['id'].toString() == postId.toString());
+      int postIndex = _posts.indexWhere((post) => post['id'].toString() == postId.toString());
       if (postIndex == -1) return;
 
       var post = _posts[postIndex];
-      post['reactions'] ??= {};
+
+      if (post['reactions'] is! Map<String, dynamic>) {
+        post['reactions'] = Map<String, dynamic>.from(post['reactions'] as Map);
+      }
 
       String? existingReaction = post['user_reaction'];
       bool isRemoving = (existingReaction == reactionType);
+
+      setState(() {
+        if (isRemoving) {
+          post['user_reaction'] = null;
+          post['reactions'][reactionType] = ((post['reactions'][reactionType] ?? 1) - 1).clamp(0, double.infinity);
+        } else {
+          if (existingReaction != null) {
+            post['reactions'][existingReaction] = ((post['reactions'][existingReaction] ?? 1) - 1).clamp(0, double.infinity);
+          }
+          post['user_reaction'] = reactionType;
+          post['reactions'][reactionType] = ((post['reactions'][reactionType] ?? 0) + 1).clamp(0, double.infinity);
+        }
+      });
+
+      _savePostsLocally();
 
       final response = await http.post(
         Uri.parse(API.reactToPost),
@@ -150,37 +224,11 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
         },
       );
 
-      print("Response Status Code: ${response.statusCode}");
-      print("Response Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        setState(() {
-          if (isRemoving) {
-            if (existingReaction == "upvote") {
-              post['reactions']['upvote'] = ((post['reactions']['upvote'] ?? 0) - 1).clamp(0, double.infinity);
-            } else if (existingReaction == "downvote") {
-              post['reactions']['downvote'] = ((post['reactions']['downvote'] ?? 0) - 1).clamp(0, double.infinity);
-            }
-            post['user_reaction'] = null;
-          } else {
-            if (existingReaction == "upvote") {
-              post['reactions']['upvote'] = ((post['reactions']['upvote'] ?? 0) - 1).clamp(0, double.infinity);
-            } else if (existingReaction == "downvote") {
-              post['reactions']['downvote'] = ((post['reactions']['downvote'] ?? 0) - 1).clamp(0, double.infinity);
-            }
-            if (reactionType == "upvote") {
-              post['reactions']['upvote'] = ((post['reactions']['upvote'] ?? 0) + 1).clamp(0, double.infinity);
-            } else if (reactionType == "downvote") {
-              post['reactions']['downvote'] = ((post['reactions']['downvote'] ?? 0) + 1).clamp(0, double.infinity);
-            }
-
-            post['user_reaction'] = reactionType;
-          }
-        });
-
-        await _saveReactionsLocally();
-      } else {
+      if (response.statusCode != 200) {
         print("Failed to react: ${response.body}");
+        _fetchPosts();
+      } else {
+        Future.delayed(Duration(milliseconds: 500), _fetchPosts);
       }
     } catch (e) {
       print("Error reacting: $e");
@@ -192,30 +240,36 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
 
     try {
       String peopleID = currentUser.currentPeople.value.people_id.toString();
+
+      int postIndex = _posts.indexWhere((p) => p['id'] == postId);
+      if (postIndex != -1) {
+        setState(() {
+          _posts[postIndex]['comments'].add({
+            'username': currentUser.currentPeople.value.username,
+            'comment_text': commentText,
+          });
+        });
+      }
+
+      _savePostsLocally();
+
       final response = await http.post(
         Uri.parse(API.addComment),
         body: {
           'report_id': postId.toString(),
           'people_id': peopleID,
-          'comment_text': commentText},
+          'comment_text': commentText
+        },
       );
-      if (response.statusCode == 200) {
-        setState(() {
-          var postIndex = _posts.indexWhere((p) => p['id'] == postId);
-          if(postIndex != -1){
-            _posts[postIndex]['comments'] ??= [];
-            _posts[postIndex]['comments'].add({
-              'username': currentUser.currentPeople.value.username,
-              'comment_text' : commentText,
-            });
-          }
-        });
 
-        await _saveCommentsLocally();
-        _commentController[postId]?.clear();
-      } else {
+      if (response.statusCode != 200) {
         print("Failed to add comment: ${response.body}");
+        _fetchPosts();
+      } else {
+        Future.delayed(Duration(milliseconds: 500), _fetchPosts);
       }
+
+      _commentController[postId]?.clear();
     } catch (e) {
       print("Error commenting: $e");
     }
