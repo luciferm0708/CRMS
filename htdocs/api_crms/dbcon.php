@@ -9,4 +9,5 @@ $user = "root";
 $password = "";
 $database = "crms";
 
+global $connector;
 $connector = new mysqli($serverHost, $user, $password, $database);

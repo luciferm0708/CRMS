@@ -16,5 +16,6 @@ class API{
   static const updateAssignedJobs = "$hostConnection/professionals/updatejobsassigned.php";
   static const fetchAssignedJobs = "$hostConnection/professionals/fetchassigned.php";
   static const reactToPost = "$hostConnection/reactions/reactions.php";
+  static const fetchReacts = "$hostConnection/reactions/fetchreactions.php";
   static const addComment = "$hostConnection/comment/comments.php";
 }

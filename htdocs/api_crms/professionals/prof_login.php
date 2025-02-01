@@ -30,6 +30,5 @@ if($result->num_rows > 0) {
     echo json_encode(array("success" => false));
 }
 
-// Close the statement
 $stmt->close();
 ?>

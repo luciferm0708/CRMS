@@ -19,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $jobs[] = $row;
     }
 
-    // Debugging: Log the result
     error_log("Jobs for professional_id $professional_id: " . json_encode($jobs));
 
     echo json_encode(["success" => true, "jobs" => $jobs]);

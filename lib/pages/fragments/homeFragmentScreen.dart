@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:particles_fly/particles_fly.dart';
@@ -152,23 +150,20 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
               ...Map<String, dynamic>.from(p),
               'id': int.tryParse(p['id'].toString()) ?? 0,
               'comments': (p['comments'] is List)
-                  ? List<Map<String, dynamic>>.from(p['comments'].map((c) => Map<String, dynamic>.from(c as Map)))
+                  ? List<Map<String, dynamic>>.from(
+                  (p['comments'] as List).map((c) => Map<String, dynamic>.from(c as Map)))
                   : [],
-              'reactions': p['reactions'] != null ? Map<String, dynamic>.from(p['reactions'] as Map) : {},
+              'reactions': {}, // Empty for now, will fetch separately
               'user_reaction': p['user_reaction'],
             };
           }).toList();
 
+          // Fetch reactions separately
+          for (var post in newPosts) {
+            await _fetchReactionsForPost(post['id'], post);
+          }
+
           setState(() {
-            for (var newPost in newPosts) {
-              int existingIndex = _posts.indexWhere((p) => p['id'] == newPost['id']);
-              if (existingIndex != -1) {
-                // Preserve local reactions/comments for the current user
-                newPost['comments'] = _posts[existingIndex]['comments'];
-                newPost['reactions'] = _posts[existingIndex]['reactions'];
-                newPost['user_reaction'] = _posts[existingIndex]['user_reaction'];
-              }
-            }
             _posts = newPosts;
             _savePostsLocally();
           });
@@ -183,6 +178,30 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     }
   }
 
+// ✅ Fetch reactions from fetchreacts.php for a single post
+  Future<void> _fetchReactionsForPost(int postId, Map<String, dynamic> post) async {
+    try {
+      final response = await http.get(Uri.parse("${API.fetchReacts}?id=$postId"));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        if (data['success'] == true && data['reactions'] is List) {
+          Map<String, dynamic> reactions = {};
+          for (var reaction in data['reactions']) {
+            reactions[reaction['reaction_type']] = reaction['count'];
+          }
+
+          setState(() {
+            post['reactions'] = reactions;
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching reactions for post $postId: $e");
+    }
+  }
+
   Future<void> _reactToPost(dynamic postId, String reactionType) async {
     try {
       int reportId = int.tryParse(postId.toString()) ?? 0;
@@ -194,22 +213,18 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
       var post = _posts[postIndex];
 
       if (post['reactions'] is! Map<String, dynamic>) {
-        post['reactions'] = Map<String, dynamic>.from(post['reactions'] as Map);
+        post['reactions'] = Map<String, dynamic>.from(post['reactions'] ?? {});
       }
 
       String? existingReaction = post['user_reaction'];
       bool isRemoving = (existingReaction == reactionType);
+      bool isSwitching = (existingReaction != null && existingReaction != reactionType);
 
       setState(() {
         if (isRemoving) {
           post['user_reaction'] = null;
-          post['reactions'][reactionType] = ((post['reactions'][reactionType] ?? 1) - 1).clamp(0, double.infinity);
         } else {
-          if (existingReaction != null) {
-            post['reactions'][existingReaction] = ((post['reactions'][existingReaction] ?? 1) - 1).clamp(0, double.infinity);
-          }
           post['user_reaction'] = reactionType;
-          post['reactions'][reactionType] = ((post['reactions'][reactionType] ?? 0) + 1).clamp(0, double.infinity);
         }
       });
 
@@ -228,7 +243,8 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
         print("Failed to react: ${response.body}");
         _fetchPosts();
       } else {
-        Future.delayed(Duration(milliseconds: 500), _fetchPosts);
+        // Fetch updated reactions from server
+        await _fetchReactionsForPost(postId, post);
       }
     } catch (e) {
       print("Error reacting: $e");

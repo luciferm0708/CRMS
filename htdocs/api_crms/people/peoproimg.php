@@ -22,7 +22,7 @@ if (isset($_FILES['img']) && is_array($_FILES['img']['name'])) {
 
         if (move_uploaded_file($tmp_name, $target_file)) {
             // Store the public URL of the uploaded file
-            $img[] = "http://192.168.68.106/api_crms/people/" . $target_file;
+            $img[] = "http://192.168.0.25/api_crms/people/" . $target_file;
         } else {
             echo json_encode(["status" => "error", "message" => "Failed to upload file: " . $original_name]);
             exit;
