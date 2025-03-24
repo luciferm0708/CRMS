@@ -128,6 +128,7 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     await prefs.setString('saved_posts', jsonEncode(_posts));
   }
 
+
   Future<void> _loadSavedPosts() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? savedPosts = prefs.getString('saved_posts');
@@ -154,18 +155,17 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
                   (p['comments'] as List).map((c) => Map<String, dynamic>.from(c as Map)))
                   : [],
               'reactions': {}, // Empty for now, will fetch separately
-              'user_reaction': p['user_reaction'],
+              'user_reaction': null, // Will fetch from API
             };
           }).toList();
 
-          // Fetch reactions separately
           for (var post in newPosts) {
             await _fetchReactionsForPost(post['id'], post);
           }
 
           setState(() {
             _posts = newPosts;
-            _savePostsLocally();
+            _savePostsLocally(); // Save posts with user reactions
           });
         } else {
           print("Failed to fetch posts: ${data['message']}");
@@ -181,12 +181,12 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
 // ✅ Fetch reactions from fetchreacts.php for a single post
   Future<void> _fetchReactionsForPost(int postId, Map<String, dynamic> post) async {
     try {
-      final response = await http.get(Uri.parse("${API.fetchReacts}?id=$postId"));
+      final response = await http.get(Uri.parse("${API.fetchReacts}?id=$postId&people_id=${currentUser.currentPeople.value.people_id}"));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        if (data['success'] == true && data['reactions'] is List) {
+        if (data['success'] == true) {
           Map<String, dynamic> reactions = {};
           for (var reaction in data['reactions']) {
             reactions[reaction['reaction_type']] = reaction['count'];
@@ -194,6 +194,7 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
 
           setState(() {
             post['reactions'] = reactions;
+            post['user_reaction'] = data['user_reaction']; // ✅ Get user's reaction
           });
         }
       }
@@ -201,6 +202,7 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
       print("Error fetching reactions for post $postId: $e");
     }
   }
+
 
   Future<void> _reactToPost(dynamic postId, String reactionType) async {
     try {
