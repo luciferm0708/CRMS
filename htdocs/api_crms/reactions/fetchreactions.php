@@ -43,9 +43,6 @@ function getReactions($report_id, $people_id) {
         'user_reaction' => $userReaction ? $userReaction['reaction_type'] : null
     ]);
 }
-<<<<<<< HEAD
 ?>
     
-=======
 ?>
->>>>>>> 22ffd23 (bug fixed and UI update)

@@ -67,8 +67,4 @@ function reactToReport() {
 
     echo json_encode(['success' => false, 'message' => 'Unknown error']);
 }
-<<<<<<< HEAD
 ?>
-=======
-?>
->>>>>>> 22ffd23 (bug fixed and UI update)

@@ -9,11 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 class ProfessionalHomeFragmentScreen extends StatefulWidget {
   final int professionalId;
 
-<<<<<<< HEAD
-  const ProfessionalHomeFragmentScreen({Key? key, required this.professionalId}) : super(key: key);
-=======
   const ProfessionalHomeFragmentScreen({super.key, required this.professionalId});
->>>>>>> 22ffd23 (bug fixed and UI update)
 
   @override
   _ProfessionalHomeFragmentScreenState createState() => _ProfessionalHomeFragmentScreenState();
@@ -29,7 +25,8 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
   void initState() {
     super.initState();
     currentProfessional.getProfessionalInfo();
-    _fetchReports(); // Fetch reports when the screen is loaded
+    _fetchReports();
+    _loadSavedData();
   }
 
   Future<void> _fetchReports() async {
@@ -83,6 +80,7 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       Fluttertoast.showToast(msg: "An error occurred. Please try again.");
     }
   }
+
 
 
   @override
@@ -228,8 +226,4 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       ),
     );
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 22ffd23 (bug fixed and UI update)
