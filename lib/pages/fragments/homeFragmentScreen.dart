@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -10,8 +9,6 @@ import '../people/preferences/current_user.dart';
 
 
 class HomeFragmentScreen extends StatefulWidget {
-  const HomeFragmentScreen({super.key});
-
   @override
   _HomeFragmentScreenState createState() => _HomeFragmentScreenState();
 }
@@ -32,7 +29,7 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     currentUser.getPeopleInfo();
   }
 
-  /*Future<void> _saveCommentsLocally() async{
+  Future<void> _saveCommentsLocally() async{
     SharedPreferences commentPrefs = await SharedPreferences.getInstance();
     String jsonComments = jsonEncode(_posts.map((post){
       return{
@@ -41,9 +38,9 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
       };
     }).toList());
     await commentPrefs.setString('saved_comments', jsonComments);
-  }*/
+  }
 
-  /*Future<void> _saveReactionsLocally() async{
+  Future<void> _saveReactionsLocally() async{
     SharedPreferences reactionPrefs = await SharedPreferences.getInstance();
     String jsonReacts = jsonEncode(_posts.map((post){
       return{
@@ -54,7 +51,7 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     }).toList());
 
     await reactionPrefs.setString('saved_reacts', jsonReacts);
-  }*/
+  }
 
   Future<void> _loadSavedData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -92,9 +89,7 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        if (kDebugMode) {
-          print("Fetched API Response: ${jsonEncode(data)}");
-        }
+        print("Fetched API Response: ${jsonEncode(data)}");
 
         if (data['status'] == 'success') {
           setState(() {
@@ -119,19 +114,13 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
             _posts = apiPosts;
           });
         } else {
-          if (kDebugMode) {
-            print("Failed to fetch posts: ${data['message']}");
-          }
+          print("Failed to fetch posts: ${data['message']}");
         }
       } else {
-        if (kDebugMode) {
-          print("Failed to load posts: ${response.statusCode}");
-        }
+        print("Failed to load posts: ${response.statusCode}");
       }
     } catch (e) {
-      if (kDebugMode) {
-        print("Error fetching posts: $e");
-      }
+      print("Error fetching posts: $e");
     }
   }
   Future<void> _savePostsLocally() async {
@@ -189,29 +178,37 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     }
   }*/
 
+// ✅ Fetch reactions from fetchreacts.php for a single post
   Future<void> _fetchReactionsForPost(int postId, Map<String, dynamic> post) async {
+    final response = await http.get(
+      Uri.parse("${API.fetchReacts}?id=$postId&people_id=${currentUser.currentPeople.value.people_id}"),
+      headers: {'Accept': 'application/json'},
+    );
     try {
-      final response = await http.get(Uri.parse("${API.fetchReacts}?id=$postId&people_id=${currentUser.currentPeople.value.people_id}"));
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        // Check if response is valid JSON
+        final decodedBody = jsonDecode(response.body);
 
-        if (data['success'] == true) {
-          Map<String, dynamic> reactions = {};
-          for (var reaction in data['reactions']) {
-            reactions[reaction['reaction_type']] = reaction['count'];
+        if (decodedBody['success'] == true) {
+          // Convert array to map
+          Map<String, int> reactionsMap = {};
+          for (var reaction in decodedBody['reactions']) {
+            reactionsMap[reaction['reaction_type']] = reaction['count'];
           }
 
           setState(() {
-            post['reactions'] = reactions;
-            post['user_reaction'] = data['user_reaction'];
+            post['reactions'] = reactionsMap;
+            post['user_reaction'] = decodedBody['user_reaction'];
           });
         }
+      } else {
+        print("Failed to fetch reactions: ${response.statusCode}");
+        print("Response body: ${response.body}");
       }
     } catch (e) {
-      if (kDebugMode) {
-        print("Error fetching reactions for post $postId: $e");
-      }
+      print("Error fetching reactions: $e");
+      print("Raw response: ${response?.body}");
     }
   }
 

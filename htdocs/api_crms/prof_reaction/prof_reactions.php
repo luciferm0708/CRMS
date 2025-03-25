@@ -1,8 +1,14 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-include "../dbcon.php"; 
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE, PUT");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Content-Type: application/json");
+include "../dbcon.php";
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     reactToReport();
@@ -11,60 +17,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 function reactToReport() {
     global $connector;
 
-    $report_id = $_POST['report_id'] ?? null;
-    $professional_id = $_POST['professional_id'] ?? null;
-    $reaction_type = $_POST['reaction_type'] ?? null;
-
-    if (!$report_id || !$professional_id || !$reaction_type) {
-        echo json_encode(['success' => false, 'message' => 'Invalid input']);
-        return;
+    // Get JSON input
+    $data = json_decode(file_get_contents("php://input"), true);
+    
+    // If JSON input fails, try form data
+    if ($data === null) {
+        $data = $_POST;
     }
 
-    // Check if the user has already reacted
-    $query = "SELECT reaction_type FROM prof_reactions WHERE report_id = ? AND professional_id = ?";
-    $stmt = $connector->prepare($query);
-    $stmt->bind_param("ii", $report_id, $professional_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $existing_reaction = $result->fetch_assoc();
-    $stmt->close();
+    $report_id = $data['report_id'] ?? null;
+    $professional_id = $data['professional_id'] ?? null;
+    $reaction_type = $data['reaction_type'] ?? null;
 
-    if ($existing_reaction) {
-        if ($reaction_type === "remove") {
-            // Remove reaction
-            $query = "DELETE FROM prof_reactions WHERE report_id = ? AND professional_id = ?";
-            $stmt = $connector->prepare($query);
-            $stmt->bind_param("ii", $report_id, $professional_id);
-            $stmt->execute();
-            $stmt->close();
-
-            echo json_encode(['success' => true, 'message' => 'Reaction removed']);
-            return;
-        } else {
-            // Switch reaction
-            if ($existing_reaction['reaction_type'] !== $reaction_type) {
-                $query = "UPDATE prof_reactions SET reaction_type = ?, created_at = NOW() WHERE report_id = ? AND professional_id = ?";
-                $stmt = $connector->prepare($query);
-                $stmt->bind_param("sii", $reaction_type, $report_id, $professional_id);
-                $stmt->execute();
-                $stmt->close();
-
-                echo json_encode(['success' => true, 'message' => 'Reaction switched']);
-                return;
-            }
+    try {
+        if (!$report_id || !$professional_id || !$reaction_type) {
+            throw new Exception('Invalid input parameters');
         }
-    } else {
-        // Insert new reaction
-        $query = "INSERT INTO prof_reactions (report_id, professional_id, reaction_type, created_at) VALUES (?, ?, ?, NOW())";
-        $stmt = $connector->prepare($query);
-        $stmt->bind_param("iis", $report_id, $professional_id, $reaction_type);
+
+        // Check existing reaction
+        $stmt = $connector->prepare("SELECT reaction_type FROM prof_reactions WHERE report_id = ? AND professional_id = ?");
+        $stmt->bind_param("ii", $report_id, $professional_id);
         $stmt->execute();
+        $result = $stmt->get_result();
+        $existing_reaction = $result->fetch_assoc();
         $stmt->close();
 
-        echo json_encode(['success' => true, 'message' => 'Reaction added']);
-        return;
-    }
+        if ($existing_reaction) {
+            if ($reaction_type === "remove") {
+                // Delete reaction
+                $stmt = $connector->prepare("DELETE FROM prof_reactions WHERE report_id = ? AND professional_id = ?");
+                $stmt->bind_param("ii", $report_id, $professional_id);
+            } else {
+                // Update reaction
+                $stmt = $connector->prepare("UPDATE prof_reactions SET reaction_type = ?, created_at = NOW() WHERE report_id = ? AND professional_id = ?");
+                $stmt->bind_param("sii", $reaction_type, $report_id, $professional_id);
+            }
+        } else {
+            // Insert new reaction
+            $stmt = $connector->prepare("INSERT INTO prof_reactions (report_id, professional_id, reaction_type, created_at) VALUES (?, ?, ?, NOW())");
+            $stmt->bind_param("iis", $report_id, $professional_id, $reaction_type);
+        }
 
-    echo json_encode(['success' => false, 'message' => 'Unknown error']);
+        if (!$stmt->execute()) {
+            throw new Exception('Database operation failed: ' . $stmt->error);
+        }
+        $stmt->close();
+
+        echo json_encode([
+            'success' => true,
+            'message' => $existing_reaction ? ($reaction_type === "remove" ? 'Reaction removed' : 'Reaction updated') : 'Reaction added'
+        ]);
+
+    } catch (Exception $e) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage(),
+            'error' => $connector->error
+        ]);
+    }
 }
 ?>
