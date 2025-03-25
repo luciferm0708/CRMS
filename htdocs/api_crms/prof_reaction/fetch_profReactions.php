@@ -5,14 +5,14 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 include "../dbcon.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    if (isset($_GET['id']) && isset($_GET['people_id'])) {
-        getReactions($_GET['id'], $_GET['people_id']);
+    if (isset($_GET['id']) && isset($_GET['professional_id'])) {
+        getReactions($_GET['id'], $_GET['professional_id']);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Report ID and People ID are required']);
+        echo json_encode(['success' => false, 'message' => 'Report ID and Professional ID are required']);
     }
 }
 
-function getReactions($report_id, $people_id) {
+function getReactions($report_id, $professional_id) {
     global $connector;
 
     // Get reaction counts
@@ -29,9 +29,9 @@ function getReactions($report_id, $people_id) {
     $stmt->close();
 
     // Get user's reaction for this post
-    $userReactionQuery = "SELECT reaction_type FROM reactions WHERE report_id = ? AND people_id = ?";
+    $userReactionQuery = "SELECT reaction_type FROM reactions WHERE report_id = ? AND professional_id = ?";
     $stmt = $connector->prepare($userReactionQuery);
-    $stmt->bind_param("ii", $report_id, $people_id);
+    $stmt->bind_param("ii", $report_id, $professional_id);
     $stmt->execute();
     $userResult = $stmt->get_result();
     $userReaction = $userResult->fetch_assoc();
@@ -43,9 +43,4 @@ function getReactions($report_id, $people_id) {
         'user_reaction' => $userReaction ? $userReaction['reaction_type'] : null
     ]);
 }
-<<<<<<< HEAD
 ?>
-    
-=======
-?>
->>>>>>> 22ffd23 (bug fixed and UI update)

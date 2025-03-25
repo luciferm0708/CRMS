@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import 'package:flutter/foundation.dart';
+>>>>>>> 22ffd23 (bug fixed and UI update)
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -9,6 +13,11 @@ import '../people/preferences/current_user.dart';
 
 
 class HomeFragmentScreen extends StatefulWidget {
+<<<<<<< HEAD
+=======
+  const HomeFragmentScreen({super.key});
+
+>>>>>>> 22ffd23 (bug fixed and UI update)
   @override
   _HomeFragmentScreenState createState() => _HomeFragmentScreenState();
 }
@@ -23,7 +32,11 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
   @override
   void initState() {
     super.initState();
+<<<<<<< HEAD
     //_loadSavedData();
+=======
+    _loadSavedData();
+>>>>>>> 22ffd23 (bug fixed and UI update)
     _fetchPosts();
     _loadSavedPosts();
     currentUser.getPeopleInfo();
@@ -38,9 +51,15 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
       };
     }).toList());
     await commentPrefs.setString('saved_comments', jsonComments);
+<<<<<<< HEAD
   }
 
   Future<void> _saveReactionsLocally() async{
+=======
+  }*/
+
+  /*Future<void> _saveReactionsLocally() async{
+>>>>>>> 22ffd23 (bug fixed and UI update)
     SharedPreferences reactionPrefs = await SharedPreferences.getInstance();
     String jsonReacts = jsonEncode(_posts.map((post){
       return{
@@ -51,7 +70,11 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     }).toList());
 
     await reactionPrefs.setString('saved_reacts', jsonReacts);
+<<<<<<< HEAD
   }
+=======
+  }*/
+>>>>>>> 22ffd23 (bug fixed and UI update)
 
   Future<void> _loadSavedData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -81,15 +104,27 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
         }
       });
     }
+<<<<<<< HEAD
   }*/
 
   /*Future<void> _fetchPosts() async {
+=======
+  }
+
+  Future<void> _fetchPosts() async {
+>>>>>>> 22ffd23 (bug fixed and UI update)
     try {
       final response = await http.get(Uri.parse(API.fetchReports));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
+<<<<<<< HEAD
         print("Fetched API Response: ${jsonEncode(data)}");
+=======
+        if (kDebugMode) {
+          print("Fetched API Response: ${jsonEncode(data)}");
+        }
+>>>>>>> 22ffd23 (bug fixed and UI update)
 
         if (data['status'] == 'success') {
           setState(() {
@@ -114,6 +149,7 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
             _posts = apiPosts;
           });
         } else {
+<<<<<<< HEAD
           print("Failed to fetch posts: ${data['message']}");
         }
       } else {
@@ -123,6 +159,23 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
       print("Error fetching posts: $e");
     }
   }*/
+=======
+          if (kDebugMode) {
+            print("Failed to fetch posts: ${data['message']}");
+          }
+        }
+      } else {
+        if (kDebugMode) {
+          print("Failed to load posts: ${response.statusCode}");
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error fetching posts: $e");
+      }
+    }
+  }
+>>>>>>> 22ffd23 (bug fixed and UI update)
   Future<void> _savePostsLocally() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('saved_posts', jsonEncode(_posts));
@@ -139,7 +192,11 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     }
   }
 
+<<<<<<< HEAD
   Future<void> _fetchPosts() async {
+=======
+  /*Future<void> _fetchPosts() async {
+>>>>>>> 22ffd23 (bug fixed and UI update)
     try {
       final response = await http.get(Uri.parse(API.fetchReports));
       if (response.statusCode == 200) {
@@ -176,9 +233,14 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     } catch (e) {
       print("Error fetching posts: $e");
     }
+<<<<<<< HEAD
   }
 
 // ✅ Fetch reactions from fetchreacts.php for a single post
+=======
+  }*/
+
+>>>>>>> 22ffd23 (bug fixed and UI update)
   Future<void> _fetchReactionsForPost(int postId, Map<String, dynamic> post) async {
     try {
       final response = await http.get(Uri.parse("${API.fetchReacts}?id=$postId&people_id=${currentUser.currentPeople.value.people_id}"));
@@ -194,12 +256,22 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
 
           setState(() {
             post['reactions'] = reactions;
+<<<<<<< HEAD
             post['user_reaction'] = data['user_reaction']; // ✅ Get user's reaction
+=======
+            post['user_reaction'] = data['user_reaction'];
+>>>>>>> 22ffd23 (bug fixed and UI update)
           });
         }
       }
     } catch (e) {
+<<<<<<< HEAD
       print("Error fetching reactions for post $postId: $e");
+=======
+      if (kDebugMode) {
+        print("Error fetching reactions for post $postId: $e");
+      }
+>>>>>>> 22ffd23 (bug fixed and UI update)
     }
   }
 
@@ -220,7 +292,10 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
 
       String? existingReaction = post['user_reaction'];
       bool isRemoving = (existingReaction == reactionType);
+<<<<<<< HEAD
       bool isSwitching = (existingReaction != null && existingReaction != reactionType);
+=======
+>>>>>>> 22ffd23 (bug fixed and UI update)
 
       setState(() {
         if (isRemoving) {
@@ -242,14 +317,26 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
       );
 
       if (response.statusCode != 200) {
+<<<<<<< HEAD
         print("Failed to react: ${response.body}");
+=======
+        if (kDebugMode) {
+          print("Failed to react: ${response.body}");
+        }
+>>>>>>> 22ffd23 (bug fixed and UI update)
         _fetchPosts();
       } else {
         // Fetch updated reactions from server
         await _fetchReactionsForPost(postId, post);
       }
     } catch (e) {
+<<<<<<< HEAD
       print("Error reacting: $e");
+=======
+      if (kDebugMode) {
+        print("Error reacting: $e");
+      }
+>>>>>>> 22ffd23 (bug fixed and UI update)
     }
   }
 
@@ -281,7 +368,13 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
       );
 
       if (response.statusCode != 200) {
+<<<<<<< HEAD
         print("Failed to add comment: ${response.body}");
+=======
+        if (kDebugMode) {
+          print("Failed to add comment: ${response.body}");
+        }
+>>>>>>> 22ffd23 (bug fixed and UI update)
         _fetchPosts();
       } else {
         Future.delayed(Duration(milliseconds: 500), _fetchPosts);
@@ -289,24 +382,40 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
 
       _commentController[postId]?.clear();
     } catch (e) {
+<<<<<<< HEAD
       print("Error commenting: $e");
+=======
+      if (kDebugMode) {
+        print("Error commenting: $e");
+      }
+>>>>>>> 22ffd23 (bug fixed and UI update)
     }
   }
 
   Widget _buildPostCard(Map<String, dynamic> post) {
 
+<<<<<<< HEAD
     final int reportId = int.tryParse(post['id'].toString()) ?? 0;
+=======
+>>>>>>> 22ffd23 (bug fixed and UI update)
     return Card(
       color: Colors.grey[900],
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
+<<<<<<< HEAD
         borderRadius: BorderRadius.circular(10),
       ),
+=======
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 8,
+>>>>>>> 22ffd23 (bug fixed and UI update)
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+<<<<<<< HEAD
             Text(
               "Report ID: ${post['id']}",
               style: TextStyle(color: Colors.white70, fontSize: 14),
@@ -417,12 +526,160 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
                 ),
               ],
             ),
+=======
+            // Report Information
+            _buildReportInfo(post),
+
+            SizedBox(height: 10),
+
+            // Images of the Post
+            if (post['image_urls'] != null && post['image_urls'].isNotEmpty)
+              _buildPostImages(post),
+
+            // Reactions Section
+            _buildReactions(post),
+
+            SizedBox(height: 8),
+
+            // Comments Section
+            _buildComments(post),
+>>>>>>> 22ffd23 (bug fixed and UI update)
           ],
         ),
       ),
     );
   }
 
+<<<<<<< HEAD
+=======
+  Widget _buildReportInfo(Map<String, dynamic> post) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Report ID: ${post['id']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
+        Text(post['description'], style: TextStyle(color: Colors.white, fontSize: 16)),
+        SizedBox(height: 8),
+        Text("${post['reported_at']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
+        SizedBox(height: 8),
+        Text("Reported by: ${post['username']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
+      ],
+    );
+  }
+
+  Widget _buildPostImages(Map<String, dynamic> post) {
+    return SizedBox(
+      height: 150,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: post['image_urls'].length,
+        itemBuilder: (context, imageIndex) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                post['image_urls'][imageIndex],
+                height: 150,
+                width: 150,
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildReactions(Map<String, dynamic> post) {
+    return Row(
+      children: [
+        _reactionButton(post, "upvote", Icons.thumb_up, Colors.blue),
+        Text("${post['reactions']?['upvote'] ?? 0}", style: TextStyle(color: Colors.white)),
+
+        _reactionButton(post, "downvote", Icons.thumb_down, Colors.red),
+        Text("${post['reactions']?['downvote'] ?? 0}", style: TextStyle(color: Colors.white)),
+      ],
+    );
+  }
+
+  Widget _reactionButton(Map<String, dynamic> post, String reactionType, IconData icon, Color color) {
+    return IconButton(
+      icon: Icon(
+        post['user_reaction'] == reactionType ? icon : icon,
+        color: post['user_reaction'] == reactionType ? color : Colors.white,
+      ),
+      onPressed: () => _reactToPost(post['id'], reactionType),
+      splashColor: color.withOpacity(0.3), // Adds a subtle splash effect
+    );
+  }
+
+  Widget _buildComments(Map<String, dynamic> post) {
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: post['comments']?.length ?? 0,
+          itemBuilder: (context, index) {
+            final comment = post['comments'][index];
+            return _buildCommentCard(comment);
+          },
+        ),
+        _buildCommentInput(post),
+      ],
+    );
+  }
+
+  Widget _buildCommentCard(Map<String, dynamic> comment) {
+    return Card(
+      color: Colors.grey[850],
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 4,
+      child: ListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        leading: CircleAvatar(
+          backgroundColor: Colors.blueAccent,
+          child: Text(comment['username'][0].toUpperCase(), style: TextStyle(color: Colors.white)),
+        ),
+        title: Text(
+          comment['username'],
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+        ),
+        subtitle: Text(
+          comment['comment_text'],
+          style: TextStyle(color: Colors.white70, fontSize: 12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCommentInput(Map<String, dynamic> post) {
+    final int reportId = int.tryParse(post['id'].toString()) ?? 0;
+    return TextField(
+      controller: _commentController[reportId] ??= TextEditingController(),
+      decoration: InputDecoration(
+        hintText: "Add a comment...",
+        hintStyle: TextStyle(color: Colors.white54),
+        filled: true,
+        fillColor: Colors.grey[800],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      style: TextStyle(color: Colors.white),
+      onSubmitted: (value) {
+        _addComment(reportId, value);
+        _commentController[reportId]?.clear();
+      },
+    );
+  }
+
+
+>>>>>>> 22ffd23 (bug fixed and UI update)
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;

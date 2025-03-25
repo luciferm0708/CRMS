@@ -9,7 +9,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 class ProfessionalHomeFragmentScreen extends StatefulWidget {
   final int professionalId;
 
+<<<<<<< HEAD
   const ProfessionalHomeFragmentScreen({Key? key, required this.professionalId}) : super(key: key);
+=======
+  const ProfessionalHomeFragmentScreen({super.key, required this.professionalId});
+>>>>>>> 22ffd23 (bug fixed and UI update)
 
   @override
   _ProfessionalHomeFragmentScreenState createState() => _ProfessionalHomeFragmentScreenState();
@@ -224,4 +228,8 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       ),
     );
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 22ffd23 (bug fixed and UI update)

@@ -12,18 +12,18 @@ function reactToReport() {
     global $connector;
 
     $report_id = $_POST['report_id'] ?? null;
-    $people_id = $_POST['people_id'] ?? null;
+    $professional_id = $_POST['professional_id'] ?? null;
     $reaction_type = $_POST['reaction_type'] ?? null;
 
-    if (!$report_id || !$people_id || !$reaction_type) {
+    if (!$report_id || !$professional_id || !$reaction_type) {
         echo json_encode(['success' => false, 'message' => 'Invalid input']);
         return;
     }
 
     // Check if the user has already reacted
-    $query = "SELECT reaction_type FROM reactions WHERE report_id = ? AND people_id = ?";
+    $query = "SELECT reaction_type FROM prof_reactions WHERE report_id = ? AND professional_id = ?";
     $stmt = $connector->prepare($query);
-    $stmt->bind_param("ii", $report_id, $people_id);
+    $stmt->bind_param("ii", $report_id, $professional_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $existing_reaction = $result->fetch_assoc();
@@ -32,9 +32,9 @@ function reactToReport() {
     if ($existing_reaction) {
         if ($reaction_type === "remove") {
             // Remove reaction
-            $query = "DELETE FROM reactions WHERE report_id = ? AND people_id = ?";
+            $query = "DELETE FROM prof_reactions WHERE report_id = ? AND professional_id = ?";
             $stmt = $connector->prepare($query);
-            $stmt->bind_param("ii", $report_id, $people_id);
+            $stmt->bind_param("ii", $report_id, $professional_id);
             $stmt->execute();
             $stmt->close();
 
@@ -43,9 +43,9 @@ function reactToReport() {
         } else {
             // Switch reaction
             if ($existing_reaction['reaction_type'] !== $reaction_type) {
-                $query = "UPDATE reactions SET reaction_type = ?, created_at = NOW() WHERE report_id = ? AND people_id = ?";
+                $query = "UPDATE prof_reactions SET reaction_type = ?, created_at = NOW() WHERE report_id = ? AND professional_id = ?";
                 $stmt = $connector->prepare($query);
-                $stmt->bind_param("sii", $reaction_type, $report_id, $people_id);
+                $stmt->bind_param("sii", $reaction_type, $report_id, $professional_id);
                 $stmt->execute();
                 $stmt->close();
 
@@ -55,9 +55,9 @@ function reactToReport() {
         }
     } else {
         // Insert new reaction
-        $query = "INSERT INTO reactions (report_id, people_id, reaction_type, created_at) VALUES (?, ?, ?, NOW())";
+        $query = "INSERT INTO prof_reactions (report_id, professional_id, reaction_type, created_at) VALUES (?, ?, ?, NOW())";
         $stmt = $connector->prepare($query);
-        $stmt->bind_param("iis", $report_id, $people_id, $reaction_type);
+        $stmt->bind_param("iis", $report_id, $professional_id, $reaction_type);
         $stmt->execute();
         $stmt->close();
 
@@ -67,8 +67,4 @@ function reactToReport() {
 
     echo json_encode(['success' => false, 'message' => 'Unknown error']);
 }
-<<<<<<< HEAD
 ?>
-=======
-?>
->>>>>>> 22ffd23 (bug fixed and UI update)
