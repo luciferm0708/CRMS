@@ -19,4 +19,6 @@ class API{
   static const addComment = "$hostConnection/comment/comments.php";
   static const reactToPostProf = "$hostConnection/prof_reaction/prof_reactions.php";
   static const fetchReactsProf = "$hostConnection/prof_reaction/fetch_profReactions.php";
+  static const addProfComment = "$hostConnection/prof_comment/prof_comments.php";
+  static const fetchProfComment = "$hostConnection/prof_comment/fetch_profComments.php";
 }

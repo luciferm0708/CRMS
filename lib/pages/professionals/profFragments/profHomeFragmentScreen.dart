@@ -218,7 +218,6 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       );
 
       if (response.statusCode != 200) {
-        // Revert UI changes if server request fails
         setState(() {
           post['user_reaction'] = existingReaction;
           post['prof_reactions'] = Map<String, int>.from(post['prof_reactions']);
@@ -240,11 +239,17 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
     if (commentText.isEmpty) return;
 
     try {
+
+      _commentController[postId]?.clear();
+
       String professionalID = currentProfessional.currentProfessional.value.professionalId.toString();
 
       int postIndex = _posts.indexWhere((p) => p['id'] == postId);
       if (postIndex != -1) {
         setState(() {
+          if (_posts[postIndex]['comments'] == null) {
+            _posts[postIndex]['comments'] = [];
+          }
           _posts[postIndex]['comments'].add({
             'username': currentProfessional.currentProfessional.value.username,
             'comment_text': commentText,
@@ -255,28 +260,52 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       _savePostsLocally();
 
       final response = await http.post(
-        Uri.parse(API.addComment),
+        Uri.parse(API.addProfComment),
         body: {
           'report_id': postId.toString(),
-          'people_id': professionalID,
+          'professional_id': professionalID,
           'comment_text': commentText
         },
       );
 
       if (response.statusCode != 200) {
+        final data =  jsonDecode(response.body);
+        if(data['success']){
+          await _fetchSinglePostComments(postId);
+        }
         if (kDebugMode) {
           print("Failed to add comment: ${response.body}");
+          Fluttertoast.showToast(msg: "Failed to add comment.");
         }
         _fetchReports();
-      } else {
+        _commentController[postId]?.clear();
+      } /*else {
         Future.delayed(Duration(milliseconds: 500), _fetchReports);
-      }
-
-      _commentController[postId]?.clear();
+      }*/
     } catch (e) {
-      if (kDebugMode) {
-        print("Error commenting: $e");
+      _commentController[postId]?.text = commentText;
+      Fluttertoast.showToast(msg: "Failed to post comment");
+    }
+  }
+  Future<void> _fetchSinglePostComments(int postId) async {
+    try {
+      final response = await http.get(
+          Uri.parse('${API.fetchProfComment}?id=$postId')
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          setState(() {
+            final postIndex = _posts.indexWhere((p) => p['id'] == postId);
+            if (postIndex != -1) {
+              _posts[postIndex]['prof_comments'] = data['comments'];
+            }
+          });
+        }
       }
+    } catch (e) {
+      if (kDebugMode) print("Error fetching comments: $e");
     }
   }
 
