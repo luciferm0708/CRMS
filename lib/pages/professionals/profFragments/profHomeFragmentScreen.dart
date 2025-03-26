@@ -31,6 +31,7 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
     currentProfessional.getProfessionalInfo();
     _fetchReports();
     _loadSavedData();
+    _loadSavedPosts();
   }
 
   Future<void> _fetchReports() async {
@@ -44,6 +45,19 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
         }
 
         if (data['status'] == 'success') {
+
+          List<dynamic> newPosts = (data['reports'] as List).map((p) {
+            return {
+              ...Map<String, dynamic>.from(p),
+              'id': int.tryParse(p['id'].toString()) ?? 0,
+              'prof_comments': (p['prof_comments'] is List) ?
+                List<Map<String, dynamic>>.from(p['prof_comments'].map((c) => Map<String,
+                  dynamic>.from(c))) : [],
+              'prof_reactions': Map<String, int>.from(p['reactions'] ?? {}),
+            };
+          }).toList();
+
+
           setState(() {
             _posts = (data['reports'] as List).map((p) {
               return {
