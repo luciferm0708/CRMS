@@ -23,13 +23,13 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
   @override
   void initState() {
     super.initState();
-    //_loadSavedData();
+    _loadSavedData();
     _fetchPosts();
     _loadSavedPosts();
     currentUser.getPeopleInfo();
   }
 
-  /*Future<void> _saveCommentsLocally() async{
+  Future<void> _saveCommentsLocally() async{
     SharedPreferences commentPrefs = await SharedPreferences.getInstance();
     String jsonComments = jsonEncode(_posts.map((post){
       return{
@@ -81,9 +81,9 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
         }
       });
     }
-  }*/
+  }
 
-  /*Future<void> _fetchPosts() async {
+  Future<void> _fetchPosts() async {
     try {
       final response = await http.get(Uri.parse(API.fetchReports));
       if (response.statusCode == 200) {
@@ -122,11 +122,12 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     } catch (e) {
       print("Error fetching posts: $e");
     }
-  }*/
+  }
   Future<void> _savePostsLocally() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('saved_posts', jsonEncode(_posts));
   }
+
 
   Future<void> _loadSavedPosts() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -138,7 +139,7 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     }
   }
 
-  Future<void> _fetchPosts() async {
+  /*Future<void> _fetchPosts() async {
     try {
       final response = await http.get(Uri.parse(API.fetchReports));
       if (response.statusCode == 200) {
@@ -154,18 +155,17 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
                   (p['comments'] as List).map((c) => Map<String, dynamic>.from(c as Map)))
                   : [],
               'reactions': {}, // Empty for now, will fetch separately
-              'user_reaction': p['user_reaction'],
+              'user_reaction': null, // Will fetch from API
             };
           }).toList();
 
-          // Fetch reactions separately
           for (var post in newPosts) {
             await _fetchReactionsForPost(post['id'], post);
           }
 
           setState(() {
             _posts = newPosts;
-            _savePostsLocally();
+            _savePostsLocally(); // Save posts with user reactions
           });
         } else {
           print("Failed to fetch posts: ${data['message']}");
@@ -176,31 +176,42 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     } catch (e) {
       print("Error fetching posts: $e");
     }
-  }
+  }*/
 
 // ✅ Fetch reactions from fetchreacts.php for a single post
   Future<void> _fetchReactionsForPost(int postId, Map<String, dynamic> post) async {
+    final response = await http.get(
+      Uri.parse("${API.fetchReacts}?id=$postId&people_id=${currentUser.currentPeople.value.people_id}"),
+      headers: {'Accept': 'application/json'},
+    );
     try {
-      final response = await http.get(Uri.parse("${API.fetchReacts}?id=$postId"));
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        // Check if response is valid JSON
+        final decodedBody = jsonDecode(response.body);
 
-        if (data['success'] == true && data['reactions'] is List) {
-          Map<String, dynamic> reactions = {};
-          for (var reaction in data['reactions']) {
-            reactions[reaction['reaction_type']] = reaction['count'];
+        if (decodedBody['success'] == true) {
+          // Convert array to map
+          Map<String, int> reactionsMap = {};
+          for (var reaction in decodedBody['reactions']) {
+            reactionsMap[reaction['reaction_type']] = reaction['count'];
           }
 
           setState(() {
-            post['reactions'] = reactions;
+            post['reactions'] = reactionsMap;
+            post['user_reaction'] = decodedBody['user_reaction'];
           });
         }
+      } else {
+        print("Failed to fetch reactions: ${response.statusCode}");
+        print("Response body: ${response.body}");
       }
     } catch (e) {
-      print("Error fetching reactions for post $postId: $e");
+      print("Error fetching reactions: $e");
+      print("Raw response: ${response?.body}");
     }
   }
+
 
   Future<void> _reactToPost(dynamic postId, String reactionType) async {
     try {
@@ -292,134 +303,168 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
   }
 
   Widget _buildPostCard(Map<String, dynamic> post) {
-
     final int reportId = int.tryParse(post['id'].toString()) ?? 0;
+
     return Card(
       color: Colors.grey[900],
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
       ),
+      elevation: 8,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Report ID: ${post['id']}",
-              style: TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-            Text(
-              post['description'],
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-            SizedBox(height: 8),
-            Text(
-              "${post['reported_at']}",
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 14,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              post['description'],
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
-            ),
-            SizedBox(height: 8),
-            // Display the username of the person who posted the report
-            Text(
-              "Reported by: ${post['username']}",
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 14,
-              ),
-            ),
-            SizedBox(height: 8),
-            if (post['image_urls'] != null &&
-                post['image_urls'].isNotEmpty)
-              SizedBox(
-                height: 150,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: post['image_urls'].length,
-                  itemBuilder: (context, imageIndex) {
-                    return Padding(
-                      padding:
-                      const EdgeInsets.only(right: 8.0),
-                      child: Image.network(
-                        post['image_urls'][imageIndex],
-                        height: 150,
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    post['user_reaction'] == "upvote" ? Icons.thumb_up : Icons.thumb_up_alt_outlined,
-                    color: post['user_reaction'] == "upvote" ? Colors.blue : Colors.white,
-                  ),
-                  onPressed: () => _reactToPost(post['id'], "upvote"),
-                ),
-                Text("${post['reactions']?['upvote'] ?? 0}",
-                    style: TextStyle(color: Colors.white)),
+            // Report Information
+            _buildReportInfo(post),
 
-                IconButton(
-                  icon: Icon(
-                    post['user_reaction'] == "downvote" ? Icons.thumb_down : Icons.thumb_down_alt_outlined,
-                    color: post['user_reaction'] == "downvote" ? Colors.red : Colors.white,
-                  ),
-                  onPressed: () => _reactToPost(post['id'], "downvote"),
-                ),
-                Text("${post['reactions']?['downvote'] ?? 0}",
-                    style: TextStyle(color: Colors.white)),
-              ],
-            ),
+            SizedBox(height: 10),
+
+            // Images of the Post
+            if (post['image_urls'] != null && post['image_urls'].isNotEmpty)
+              _buildPostImages(post),
+
+            // Reactions Section
+            _buildReactions(post),
+
             SizedBox(height: 8),
-            Column(
-              children: [
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: post['comments']?.length ?? 0,
-                  itemBuilder: (context, index) {
-                    final comment = post['comments'][index];
-                    return ListTile(
-                      title: Text(comment['username'],
-                          style: TextStyle(color: Colors.white)),
-                      subtitle: Text(comment['comment_text'],
-                          style: TextStyle(color: Colors.white70)),
-                    );
-                  },
-                ),
-                TextField(
-                  controller: _commentController[reportId] ??= TextEditingController(),
-                  decoration: InputDecoration(
-                    hintText: "Add a comment...",
-                    hintStyle: TextStyle(color: Colors.white54),
-                    filled: true,
-                    fillColor: Colors.grey[800],
-                  ),
-                  style: TextStyle(color: Colors.white),
-                  onSubmitted: (value) {
-                    _addComment(reportId, value);
-                    _commentController[reportId]?.clear();
-                  },
-                ),
-              ],
-            ),
+
+            // Comments Section
+            _buildComments(post),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildReportInfo(Map<String, dynamic> post) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Report ID: ${post['id']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
+        Text(post['description'], style: TextStyle(color: Colors.white, fontSize: 16)),
+        SizedBox(height: 8),
+        Text("${post['reported_at']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
+        SizedBox(height: 8),
+        Text("Reported by: ${post['username']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
+      ],
+    );
+  }
+
+  Widget _buildPostImages(Map<String, dynamic> post) {
+    return SizedBox(
+      height: 150,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: post['image_urls'].length,
+        itemBuilder: (context, imageIndex) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                post['image_urls'][imageIndex],
+                height: 150,
+                width: 150,
+                fit: BoxFit.cover,
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildReactions(Map<String, dynamic> post) {
+    return Row(
+      children: [
+        _reactionButton(post, "upvote", Icons.thumb_up, Colors.blue),
+        Text("${post['reactions']?['upvote'] ?? 0}", style: TextStyle(color: Colors.white)),
+
+        _reactionButton(post, "downvote", Icons.thumb_down, Colors.red),
+        Text("${post['reactions']?['downvote'] ?? 0}", style: TextStyle(color: Colors.white)),
+      ],
+    );
+  }
+
+  Widget _reactionButton(Map<String, dynamic> post, String reactionType, IconData icon, Color color) {
+    return IconButton(
+      icon: Icon(
+        post['user_reaction'] == reactionType ? icon : icon,
+        color: post['user_reaction'] == reactionType ? color : Colors.white,
+      ),
+      onPressed: () => _reactToPost(post['id'], reactionType),
+      splashColor: color.withOpacity(0.3), // Adds a subtle splash effect
+    );
+  }
+
+  Widget _buildComments(Map<String, dynamic> post) {
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: post['comments']?.length ?? 0,
+          itemBuilder: (context, index) {
+            final comment = post['comments'][index];
+            return _buildCommentCard(comment);
+          },
+        ),
+        _buildCommentInput(post),
+      ],
+    );
+  }
+
+  Widget _buildCommentCard(Map<String, dynamic> comment) {
+    return Card(
+      color: Colors.grey[850],
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 4,
+      child: ListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        leading: CircleAvatar(
+          backgroundColor: Colors.blueAccent,
+          child: Text(comment['username'][0].toUpperCase(), style: TextStyle(color: Colors.white)),
+        ),
+        title: Text(
+          comment['username'],
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+        ),
+        subtitle: Text(
+          comment['comment_text'],
+          style: TextStyle(color: Colors.white70, fontSize: 12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCommentInput(Map<String, dynamic> post) {
+    final int reportId = int.tryParse(post['id'].toString()) ?? 0;
+    return TextField(
+      controller: _commentController[reportId] ??= TextEditingController(),
+      decoration: InputDecoration(
+        hintText: "Add a comment...",
+        hintStyle: TextStyle(color: Colors.white54),
+        filled: true,
+        fillColor: Colors.grey[800],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      style: TextStyle(color: Colors.white),
+      onSubmitted: (value) {
+        _addComment(reportId, value);
+        _commentController[reportId]?.clear();
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {

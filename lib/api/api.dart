@@ -1,7 +1,6 @@
 class API{
   static const hostConnection = "http://192.168.68.105/api_crms";
   static const hostConnectionPeople = "$hostConnection/people";
-
   static const peopleRegister = "$hostConnection/people/peopleReg.php";
   static const validateEmail = "$hostConnection/people/validate_email.php";
   static const logIn = "$hostConnection/people/login.php";
@@ -18,4 +17,8 @@ class API{
   static const reactToPost = "$hostConnection/reactions/reactions.php";
   static const fetchReacts = "$hostConnection/reactions/fetchreactions.php";
   static const addComment = "$hostConnection/comment/comments.php";
+  static const reactToPostProf = "$hostConnection/prof_reaction/prof_reactions.php";
+  static const fetchReactsProf = "$hostConnection/prof_reaction/fetch_profReactions.php";
+  static const addProfComment = "$hostConnection/prof_comment/prof_comments.php";
+  static const fetchProfComment = "$hostConnection/prof_comment/fetch_profComments.php";
 }

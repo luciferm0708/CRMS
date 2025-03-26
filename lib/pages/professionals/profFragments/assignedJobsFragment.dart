@@ -9,7 +9,7 @@ import '../profPreferences/current_professionals.dart';
 class AssignedJobsFragmentScreen extends StatefulWidget {
   final int professionalId;
 
-  const AssignedJobsFragmentScreen({Key? key, required this.professionalId}) : super(key: key);
+  const AssignedJobsFragmentScreen({super.key, required this.professionalId});
 
   @override
   _AssignedJobsFragmentScreenState createState() => _AssignedJobsFragmentScreenState();
