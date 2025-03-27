@@ -18,7 +18,7 @@ class _ProfHomeState extends State<ProfHome> {
   // List of screens to navigate to
   final List<Widget> _fragmentScreens = [
     ProfessionalHomeFragmentScreen(professionalId: Get.find<CurrentProfessional>().professionalId),
-    Profprofilefragmentscreen(),
+    ProfProfileFragmentScreen(),
     AssignedJobsFragmentScreen(professionalId: Get.find<CurrentProfessional>().professionalId),
   ];
 

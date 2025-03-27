@@ -6,14 +6,14 @@ import 'package:particles_fly/particles_fly.dart';
 
 import '../model/professional.dart';
 
-class Profprofilefragmentscreen extends StatefulWidget {
-  const Profprofilefragmentscreen({super.key});
+class ProfProfileFragmentScreen extends StatefulWidget {
+  const ProfProfileFragmentScreen({super.key});
 
   @override
-  State<Profprofilefragmentscreen> createState() => _ProfprofilefragmentscreenState();
+  State<ProfProfileFragmentScreen> createState() => _ProfProfileFragmentScreenState();
 }
 
-class _ProfprofilefragmentscreenState extends State<Profprofilefragmentscreen> {
+class _ProfProfileFragmentScreenState extends State<ProfProfileFragmentScreen> {
   
   final currentProfessional = CurrentProfessional();
   
@@ -75,7 +75,6 @@ class _ProfprofilefragmentscreenState extends State<Profprofilefragmentscreen> {
       );
     }
   }
-  //nisa
   Widget profInfoItemProfile(IconData iconData, String profData) {
     return Container(
       decoration: BoxDecoration(
