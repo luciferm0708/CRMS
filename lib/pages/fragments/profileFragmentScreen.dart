@@ -122,7 +122,7 @@ class _ProfileFragmentScreenState extends State<ProfileFragmentScreen> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           content: const Text(
-            "Are you sure?\nYou want to log out from the CRMS?",
+            "Are you sure?\nYou want to log out from the Dollars+?",
             style: TextStyle(color: Colors.white),
           ),
           actions: [

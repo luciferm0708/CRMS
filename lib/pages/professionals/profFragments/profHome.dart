@@ -1,5 +1,6 @@
 import 'package:crime_record_management_system/pages/professionals/profFragments/assignedJobsFragment.dart';
 import 'package:crime_record_management_system/pages/professionals/profFragments/profHomeFragmentScreen.dart';
+import 'package:crime_record_management_system/pages/professionals/profFragments/profProfileFragmentScreen.dart';
 import 'package:crime_record_management_system/pages/professionals/profPreferences/current_professionals.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,7 +18,7 @@ class _ProfHomeState extends State<ProfHome> {
   // List of screens to navigate to
   final List<Widget> _fragmentScreens = [
     ProfessionalHomeFragmentScreen(professionalId: Get.find<CurrentProfessional>().professionalId),
-
+    Profprofilefragmentscreen(),
     AssignedJobsFragmentScreen(professionalId: Get.find<CurrentProfessional>().professionalId),
   ];
 
