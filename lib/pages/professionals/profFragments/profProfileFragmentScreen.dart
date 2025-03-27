@@ -2,6 +2,9 @@ import 'package:crime_record_management_system/pages/logInInterface.dart';
 import 'package:crime_record_management_system/pages/professionals/profPreferences/current_professionals.dart';
 import 'package:crime_record_management_system/pages/professionals/profPreferences/professional_preference.dart';
 import 'package:flutter/material.dart';
+import 'package:particles_fly/particles_fly.dart';
+
+import '../model/professional.dart';
 
 class Profprofilefragmentscreen extends StatefulWidget {
   const Profprofilefragmentscreen({super.key});
@@ -102,9 +105,75 @@ class _ProfprofilefragmentscreenState extends State<Profprofilefragmentscreen> {
       ),
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    final size = MediaQuery.of(context).size;
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: ValueListenableBuilder<Professional>(
+        valueListenable: currentProfessional.currentProfessional,
+        builder: (context, professional, child) {
+          if (professional.username.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: ParticlesFly(
+                  height: size.height,
+                  width: size.width,
+                  connectDots: true,
+                  numberOfParticles: 50,
+                ),
+              ),
+              ListView(
+                padding: const EdgeInsets.all(32),
+                children: [
+                  SizedBox(height: size.height * 0.1),
+                  Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      profInfoItemProfile(Icons.person, professional.username),
+                      const SizedBox(height: 20),
+                      profInfoItemProfile(Icons.email, professional.email),
+                      const SizedBox(height: 20),
+                      profInfoItemProfile(Icons.perm_identity, professional.nidNumber?.toString() ?? ''),
+                      const SizedBox(height: 20),
+                      profInfoItemProfile(Icons.date_range, professional.organizationName ?? ''),
+                      const SizedBox(height: 20),
+                      profInfoItemProfile(Icons.date_range, professional.licenseNumber ?? ''),
+                      const SizedBox(height: 20),
+                      profInfoItemProfile(Icons.date_range, professional.professionType),
+                      const SizedBox(height: 20),
+                      Center(
+                        child: Material(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(8),
+                          child: InkWell(
+                            onTap: () {
+                              logOutProfessional(context);
+                            },
+                            borderRadius: BorderRadius.circular(32),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                              child: Text(
+                                "Log Out",
+                                style: TextStyle(color: Colors.black, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }
