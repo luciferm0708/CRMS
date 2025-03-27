@@ -1,5 +1,4 @@
-import 'dart:nativewrappers/_internal/vm/lib/typed_data_patch.dart';
-
+import 'package:crime_record_management_system/pages/logInInterface.dart';
 import 'package:crime_record_management_system/pages/professionals/profPreferences/current_professionals.dart';
 import 'package:crime_record_management_system/pages/professionals/profPreferences/professional_preference.dart';
 import 'package:flutter/material.dart';
@@ -62,6 +61,45 @@ class _ProfprofilefragmentscreenState extends State<Profprofilefragmentscreen> {
             ],
           );
         }
+    );
+
+    if (resultRes == "loggedOut") {
+      await ProfessionalPref.removeProfessionalInfo();
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const Logininterface()),
+          (Route<dynamic> route) => false,
+      );
+    }
+  }
+
+  Widget profInfoItemProfile(IconData iconData, String profData) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.grey,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Icon(
+            iconData,
+            size: 30,
+            color: Colors.black,
+          ),
+          const SizedBox(width: 16,),
+          Expanded(
+              child: Text(
+                profData,
+                style: const TextStyle(
+                  fontSize: 15,
+                  color: Colors.white,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              )
+          )
+        ],
+      ),
     );
   }
   
