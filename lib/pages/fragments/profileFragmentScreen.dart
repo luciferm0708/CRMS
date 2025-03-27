@@ -15,6 +15,8 @@ import '../people/model/people.dart';
 import 'dart:typed_data';
 
 class ProfileFragmentScreen extends StatefulWidget {
+  const ProfileFragmentScreen({super.key});
+
   @override
   _ProfileFragmentScreenState createState() => _ProfileFragmentScreenState();
 }
