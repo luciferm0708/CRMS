@@ -29,8 +29,11 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
   void initState() {
     super.initState();
     currentProfessional.getProfessionalInfo();
-    _fetchReports();
-    _loadSavedData();
+    _loadSavedPosts().then((_) => _fetchReports());
+  }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _loadSavedPosts();
   }
 
@@ -59,17 +62,21 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
 
 
           setState(() {
-            _posts = (data['reports'] as List).map((p) {
-              return {
-                ...Map<String, dynamic>.from(p),
-                'id': int.tryParse(p['id'].toString()) ?? 0,
-                'prof_comments': (p['prof_comments'] is List)
-                    ? List<Map<String, dynamic>>.from(p['comments'].map((c) => Map<String, dynamic>.from(c)))
-                    : [],
-                'prof_reactions': Map<String, int>.from(p['reactions'] ?? {}), // Add this line
-              };
+            _posts = _posts.map((existingPost) {
+              var newPost = newPosts.firstWhere(
+                (np) => np['id'] == existingPost['id'],
+                orElse: () => null,
+              );
+              return newPost ?? existingPost;
             }).toList();
+            
+            for (var np in newPosts) {
+              if (!_posts.any((p) => p['id'] == np['id'])) {
+                _posts.add(np);
+              }
+            }
           });
+          await _savePostsLocally();
         } else {
           if (kDebugMode) {
             print("Failed to fetch posts: ${data['message']}");
@@ -251,6 +258,8 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
 
   Future<void> _addComment(int postId, String commentText) async {
     if (commentText.isEmpty) return;
+    int postIndex = _posts.indexWhere((p) => p['id'] == postId);
+
 
     try {
 
@@ -261,17 +270,14 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       int postIndex = _posts.indexWhere((p) => p['id'] == postId);
       if (postIndex != -1) {
         setState(() {
-          if (_posts[postIndex]['comments'] == null) {
-            _posts[postIndex]['comments'] = [];
-          }
-          _posts[postIndex]['comments'].add({
+          _posts[postIndex]['prof_comments'].insert(0, {
             'username': currentProfessional.currentProfessional.value.username,
             'comment_text': commentText,
+            'temporary': true
           });
         });
+        await _savePostsLocally();
       }
-
-      _savePostsLocally();
 
       final response = await http.post(
         Uri.parse(API.addProfComment),
@@ -281,6 +287,16 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
           'comment_text': commentText
         },
       );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          setState(() {
+            _posts[postIndex]['prof_comments'].removeWhere((c) => c['temporary'] == true);
+          });
+          await _fetchSinglePostComments(postId);
+          await _savePostsLocally();
+        }
+      }
 
       if (response.statusCode != 200) {
         final data =  jsonDecode(response.body);
@@ -297,7 +313,9 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
         Future.delayed(Duration(milliseconds: 500), _fetchReports);
       }*/
     } catch (e) {
-      _commentController[postId]?.text = commentText;
+      setState(() {
+        _posts[postIndex]['prof_comments'].removeWhere((c) => c['temporary'] == true);
+      });
       Fluttertoast.showToast(msg: "Failed to post comment");
     }
   }
@@ -313,9 +331,17 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
           setState(() {
             final postIndex = _posts.indexWhere((p) => p['id'] == postId);
             if (postIndex != -1) {
-              _posts[postIndex]['prof_comments'] = data['comments'];
+              List<dynamic> tempComments = _posts[postIndex]['prof_comments']
+                  .where((c) => c['temporary'] == true)
+                  .toList();
+
+              _posts[postIndex]['prof_comments'] = [
+                ...tempComments,
+                ...data['comments']
+              ];
             }
           });
+          await _savePostsLocally();
         }
       }
     } catch (e) {
@@ -446,9 +472,9 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
         ListView.builder(
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
-          itemCount: post['comments']?.length ?? 0,
+          itemCount: post['prof_comments']?.length ?? 0,
           itemBuilder: (context, index) {
-            final comment = post['comments'][index];
+            final comment = post['prof_comments'][index];
             return _buildCommentCard(comment);
           },
         ),
@@ -459,7 +485,9 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
 
   Widget _buildCommentCard(Map<String, dynamic> comment) {
     return Card(
-      color: Colors.grey[850],
+      color: comment['temporary'] == true
+          ? Colors.grey[700]
+          : Colors.grey[850],
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -469,15 +497,34 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         leading: CircleAvatar(
           backgroundColor: Colors.blueAccent,
-          child: Text(comment['username'][0].toUpperCase(), style: TextStyle(color: Colors.white)),
+          child: Text(comment['username'][0].toUpperCase(),
+              style: TextStyle(color: Colors.white)),
         ),
         title: Text(
           comment['username'],
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+          style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 14
+          ),
         ),
-        subtitle: Text(
-          comment['comment_text'],
-          style: TextStyle(color: Colors.white70, fontSize: 12),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              comment['comment_text'],
+              style: TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+            if (comment['temporary'] == true)
+              Text(
+                "Posting...",
+                style: TextStyle(
+                    color: Colors.grey[400],
+                    fontSize: 10,
+                    fontStyle: FontStyle.italic
+                ),
+              ),
+          ],
         ),
       ),
     );
