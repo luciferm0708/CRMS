@@ -21,7 +21,7 @@ class _ProfprofilefragmentscreenState extends State<Profprofilefragmentscreen> {
     super.initState();
     currentProfessional.getProfessionalInfo();
   }
-  
+
   void logOutProfessional(BuildContext context) async {
     final resultRes = await showDialog<String>(
         context: context,
@@ -44,17 +44,17 @@ class _ProfprofilefragmentscreenState extends State<Profprofilefragmentscreen> {
             ),
             actions: [
               TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text(
-                    "No",
-                    style: TextStyle(color: Colors.red),
-                  ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  "No",
+                  style: TextStyle(color: Colors.red),
+                ),
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop("loggedOut");
                 },
                 child: const Text(
                   "Yes",
@@ -69,9 +69,9 @@ class _ProfprofilefragmentscreenState extends State<Profprofilefragmentscreen> {
     if (resultRes == "loggedOut") {
       await ProfessionalPref.removeProfessionalInfo();
       Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const Logininterface()),
-          (Route<dynamic> route) => false,
+        context,
+        MaterialPageRoute(builder: (context) => const Logininterface()),
+            (Route<dynamic> route) => false,
       );
     }
   }
