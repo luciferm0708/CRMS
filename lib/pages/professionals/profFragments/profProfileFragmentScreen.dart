@@ -75,7 +75,6 @@ class _ProfprofilefragmentscreenState extends State<Profprofilefragmentscreen> {
       );
     }
   }
-  //nisa
   Widget profInfoItemProfile(IconData iconData, String profData) {
     return Container(
       decoration: BoxDecoration(
