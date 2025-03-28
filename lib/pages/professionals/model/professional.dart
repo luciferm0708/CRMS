@@ -13,6 +13,7 @@ class Professional {
   String confirmPass;
   String verificationStatus;
   String registeredAt;
+  String profileImage;
 
   Professional(
         this.professionalId,
@@ -28,7 +29,9 @@ class Professional {
         this.pass,
         this.confirmPass,
         this.verificationStatus,
-        this.registeredAt);
+        this.registeredAt,
+        this.profileImage,
+      );
 
   // Factory method for JSON deserialization
   factory Professional.fromJson(Map<String, dynamic> json) {
@@ -49,6 +52,7 @@ class Professional {
       json["confirm_pass"] ?? "",
       json["verification_status"] ?? "Pending",
       json["registered_at"] ?? "",
+      json["profile_image"] ?? "",
     );
   }
 
@@ -68,5 +72,6 @@ class Professional {
     'confirm_pass': confirmPass,
     'verification_status': verificationStatus,
     'registered_at': registeredAt,
+    'profile_image': profileImage,
   };
 }

@@ -21,4 +21,5 @@ class API{
   static const fetchReactsProf = "$hostConnection/prof_reaction/fetch_profReactions.php";
   static const addProfComment = "$hostConnection/prof_comment/prof_comments.php";
   static const fetchProfComment = "$hostConnection/prof_comment/fetch_profComments.php";
+  static const uploadProfProfileImage = "$hostConnection/professionals/professional_image.php";
 }

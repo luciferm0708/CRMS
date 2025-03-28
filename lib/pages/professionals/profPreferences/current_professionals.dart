@@ -5,7 +5,7 @@ class CurrentProfessional {
   final ValueNotifier<Professional> currentProfessional = ValueNotifier(emptyProfessional());
 
   static Professional emptyProfessional() {
-    return Professional(0, '', '', '', '', '', '', '', '', '', '', '', '', '');
+    return Professional(0, '', '', '', '', '', '', '', '', '', '', '', '', '', '');
   }
 
   int get professionalId => currentProfessional.value.professionalId;
