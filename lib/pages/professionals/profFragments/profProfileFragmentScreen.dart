@@ -348,13 +348,13 @@ class _ProfProfileFragmentScreenState extends State<ProfProfileFragmentScreen> {
                       const SizedBox(height: 20),
                       profInfoItemProfile(Icons.email, professional.email),
                       const SizedBox(height: 20),
-                      profInfoItemProfile(Icons.perm_identity, professional.nidNumber?.toString() ?? ''),
+                      profInfoItemProfile(Icons.onetwothree_sharp, professional.nidNumber?.toString() ?? ''),
                       const SizedBox(height: 20),
-                      profInfoItemProfile(Icons.date_range, professional.organizationName ?? ''),
+                      profInfoItemProfile(Icons.text_format_sharp, professional.organizationName ?? ''),
                       const SizedBox(height: 20),
-                      profInfoItemProfile(Icons.date_range, professional.licenseNumber ?? ''),
+                      profInfoItemProfile(Icons.onetwothree_sharp, professional.licenseNumber ?? ''),
                       const SizedBox(height: 20),
-                      profInfoItemProfile(Icons.date_range, professional.professionType),
+                      profInfoItemProfile(Icons.text_snippet_sharp, professional.professionType),
                       const SizedBox(height: 20),
                       Center(
                         child: Material(
