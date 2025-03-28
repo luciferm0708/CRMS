@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:crime_record_management_system/pages/logInInterface.dart';
@@ -33,6 +34,66 @@ class _ProfProfileFragmentScreenState extends State<ProfProfileFragmentScreen> {
     currentProfessional.getProfessionalInfo();
   }
 
+  /*Future<void> _uploadImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+
+      // Get professional data
+      final professional = currentProfessional.currentProfessional.value;
+      final professionalId = professional.professionalId.toString();
+
+      // Prepare multipart request
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse(API.uploadProfProfileImage),
+      );
+
+      // Add file
+      if (kIsWeb) {
+        final bytes = await image.readAsBytes();
+        request.files.add(http.MultipartFile.fromBytes(
+          'profile_image',
+          bytes,
+          filename: image.name,
+        ));
+      } else {
+        request.files.add(await http.MultipartFile.fromPath(
+          'profile_image',
+          image.path,
+        ));
+      }
+
+      // Add fields
+      request.fields['professional_id'] = professionalId;
+
+      // Send request
+      var response = await request.send();
+      final respStr = await response.stream.bytesToString();
+      final jsonResponse = jsonDecode(respStr);
+
+      if (response.statusCode == 200 && jsonResponse['success']) {
+        // Update local state
+        setState(() {
+          professional.profileImage = jsonResponse['image_url'];
+          currentProfessional.currentProfessional.value = professional;
+        });
+
+        // Update shared preferences
+        await ProfessionalPref.storeProfessionalInfo(professional);
+
+        // Force UI refresh
+        currentProfessional.currentProfessional.notifyListeners();
+      } else {
+        throw Exception(jsonResponse['message'] ?? 'Upload failed');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Upload failed: ${e.toString()}')),
+      );
+      if (kDebugMode) print("Upload error: $e");
+    }
+  }*/
   Future<void> _uploadImage() async {
     try {
       if (kIsWeb) {
