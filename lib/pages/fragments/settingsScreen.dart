@@ -8,7 +8,7 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Text(
-            "Setting"
+            "Settings"
         ),
       ),
     );
