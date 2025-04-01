@@ -56,21 +56,22 @@ class _HomeState extends State<Home> {
       ),
       bottomNavigationBar: Obx(
             () => BottomNavigationBar(
-          backgroundColor: Colors.red,
-          currentIndex: _indexNumber.value,
-          onTap: (value) {
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.red,
+            currentIndex: _indexNumber.value,
+            onTap: (value) {
             _indexNumber.value = value;
-          },
-          showSelectedLabels: true,
-          showUnselectedLabels: true,
-          selectedItemColor: Colors.deepPurpleAccent,
-          unselectedItemColor: Colors.deepPurple,
-          items: List.generate(_navigationButtonsProperties.length, (index) {
-            var navBtnProperty = _navigationButtonsProperties[index];
-            return BottomNavigationBarItem(
-              icon: Icon(navBtnProperty["non_active_icon"]),
-              activeIcon: Icon(navBtnProperty["active_icon"]),
-              label: navBtnProperty["label"],
+            },
+            showSelectedLabels: true,
+            showUnselectedLabels: true,
+            selectedItemColor: Colors.deepPurpleAccent,
+            unselectedItemColor: Colors.deepPurple,
+            items: List.generate(_navigationButtonsProperties.length, (index) {
+              var navBtnProperty = _navigationButtonsProperties[index];
+              return BottomNavigationBarItem(
+                icon: Icon(navBtnProperty["non_active_icon"]),
+                activeIcon: Icon(navBtnProperty["active_icon"]),
+                label: navBtnProperty["label"],
             );
           }),
         ),

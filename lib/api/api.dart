@@ -1,5 +1,5 @@
 class API{
-  static const hostConnection = "http://192.168.68.105/api_crms";
+  static const hostConnection = "http://192.168.68.107/api_crms";
   static const hostConnectionPeople = "$hostConnection/people";
   static const peopleRegister = "$hostConnection/people/peopleReg.php";
   static const validateEmail = "$hostConnection/people/validate_email.php";
