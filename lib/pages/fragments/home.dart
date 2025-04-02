@@ -1,6 +1,8 @@
 import 'package:crime_record_management_system/pages/fragments/homeFragmentScreen.dart';
 import 'package:crime_record_management_system/pages/fragments/profileFragmentScreen.dart';
 import 'package:crime_record_management_system/pages/fragments/reportCrimeScreen.dart';
+import 'package:crime_record_management_system/pages/fragments/settingsScreen.dart';
+import 'package:crime_record_management_system/pages/fragments/tabScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,6 +20,8 @@ class _HomeState extends State<Home> {
     HomeFragmentScreen(),
     ProfileFragmentScreen(),
     ReportCrimeScreen(onReportSubmitted: () {  },),
+    SettingsScreen(),
+    TabScreen(),
   ];
 
   // List of navigation button properties
@@ -41,6 +45,11 @@ class _HomeState extends State<Home> {
       "active_icon": Icons.settings,
       "non_active_icon" : Icons.settings_outlined,
       "label": "Settings",
+    },
+    {
+      "active_icon": Icons.table_rows_sharp,
+      "non_active_icon" : Icons.table_rows_outlined,
+      "label": "Tabs",
     },
   ];
 
