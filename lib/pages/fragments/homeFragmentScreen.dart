@@ -178,7 +178,6 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     }
   }*/
 
-// ✅ Fetch reactions from fetchreacts.php for a single post
   Future<void> _fetchReactionsForPost(int postId, Map<String, dynamic> post) async {
     final response = await http.get(
       Uri.parse("${API.fetchReacts}?id=$postId&people_id=${currentUser.currentPeople.value.people_id}"),
