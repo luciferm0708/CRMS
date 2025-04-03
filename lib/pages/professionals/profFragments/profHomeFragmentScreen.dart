@@ -29,12 +29,8 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
   void initState() {
     super.initState();
     currentProfessional.getProfessionalInfo();
-    _loadSavedPosts().then((_) => _fetchReports());
-  }
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadSavedPosts();
+    _fetchReports();
+    _loadSavedData();
   }
 
   Future<void> _fetchReports() async {
@@ -42,39 +38,25 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       final response = await http.get(Uri.parse(API.fetchReports));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         if (kDebugMode) {
           print("Fetched API Response: ${jsonEncode(data)}");
         }
-
         if (data['status'] == 'success') {
-
-          List<dynamic> newPosts = (data['reports'] as List).map((p) {
-            return {
-              ...Map<String, dynamic>.from(p),
-              'id': int.tryParse(p['id'].toString()) ?? 0,
-              'prof_comments': (p['prof_comments'] is List) ?
-                List<Map<String, dynamic>>.from(p['prof_comments'].map((c) => Map<String,
-                  dynamic>.from(c))) : [],
-              'prof_reactions': Map<String, int>.from(p['reactions'] ?? {}),
-            };
-          }).toList();
-
-
           setState(() {
-            _posts = _posts.map((existingPost) {
-              var newPost = newPosts.firstWhere(
-                (np) => np['id'] == existingPost['id'],
-                orElse: () => null,
-              );
-              return newPost ?? existingPost;
+            _posts = (data['reports'] as List).map((p) {
+              return {
+                ...Map<String, dynamic>.from(p),
+                'id': int.tryParse(p['id'].toString()) ?? 0,
+                'prof_comments': (p['prof_comments'] is List)
+                    ? List<Map<String, dynamic>>.from(
+                    p['prof_comments'].map((c) => Map<String, dynamic>.from(c)))
+                    : [],
+                'prof_reactions': (p['reactions'] is Map)
+                    ? Map<String, int>.from(p['reactions'])
+                    : <String, int>{},
+                'user_reaction': p['user_reaction'] ?? null,
+              };
             }).toList();
-            
-            for (var np in newPosts) {
-              if (!_posts.any((p) => p['id'] == np['id'])) {
-                _posts.add(np);
-              }
-            }
           });
           await _savePostsLocally();
         } else {
@@ -103,25 +85,18 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
           'professional_id': currentProfessional.professionalId.toString(),
         },
       );
-
       if (response.statusCode == 200) {
-        try {
-          final data = jsonDecode(response.body);
-          if (data['success']) {
-            Fluttertoast.showToast(msg: "Job assigned successfully!");
-          } else {
-            Fluttertoast.showToast(msg: data['message']);
-          }
-        } catch (jsonError) {
-          print("Non-JSON response: ${response.body}");
-          Fluttertoast.showToast(msg: "Unexpected response format.");
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          Fluttertoast.showToast(msg: "Job assigned successfully!");
+        } else {
+          Fluttertoast.showToast(msg: data['message']);
         }
       } else {
-        print("Response body: ${response.body}");
         Fluttertoast.showToast(msg: "Failed to assign job. Server error.");
       }
     } catch (e) {
-      print("Error assigning job: $e");
+      if (kDebugMode) print("Error assigning job: $e");
       Fluttertoast.showToast(msg: "An error occurred. Please try again.");
     }
   }
@@ -132,9 +107,10 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
     String? savedProfReactions = preferences.getString("saved_ProfReactions");
 
     if (savedProfComments != null || savedProfReactions != null) {
-      List<dynamic> profCommentsList = savedProfComments != null ? jsonDecode(savedProfComments) : [];
-      List<dynamic> profReactsList = savedProfReactions != null ? jsonDecode(savedProfReactions) : [];
-
+      List<dynamic> profCommentsList =
+      savedProfComments != null ? jsonDecode(savedProfComments) : [];
+      List<dynamic> profReactsList =
+      savedProfReactions != null ? jsonDecode(savedProfReactions) : [];
       setState(() {
         _posts = profCommentsList.map((post) {
           return {
@@ -145,9 +121,11 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
           };
         }).toList();
         for (var reactionPost in profReactsList) {
-          var postIndex = _posts.indexWhere((post) => post['id'] == reactionPost['id']);
+          var postIndex =
+          _posts.indexWhere((post) => post['id'] == reactionPost['id']);
           if (postIndex != -1) {
-            _posts[postIndex]['prof_reactions'] = reactionPost['prof_reactions'] ?? {};
+            _posts[postIndex]['prof_reactions'] =
+                reactionPost['prof_reactions'] ?? {};
             _posts[postIndex]['user_reaction'] = reactionPost['user_reaction'];
           }
         }
@@ -169,19 +147,18 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       });
     }
   }
+
   Future<void> _fetchReactionsForPost(int postId, Map<String, dynamic> post) async {
     try {
-      final response = await http.get(Uri.parse("${API.fetchReactsProf}?id=$postId&professional_id=${currentProfessional.currentProfessional.value.professionalId}"));
-
+      final response = await http.get(Uri.parse(
+          "${API.fetchReactsProf}?id=$postId&professional_id=${currentProfessional.currentProfessional.value.professionalId}"));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         if (data['success'] == true) {
           Map<String, dynamic> reactions = {};
           for (var reaction in data['prof_reactions']) {
             reactions[reaction['reaction_type']] = reaction['count'];
           }
-
           setState(() {
             post['prof_reactions'] = reactions;
             post['user_reaction'] = data['user_reaction'];
@@ -194,19 +171,17 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       }
     }
   }
+
   Future<void> _reactToPost(dynamic postId, String reactionType) async {
     try {
       final reportId = postId is int ? postId : int.tryParse(postId.toString()) ?? 0;
       final professionalId = currentProfessional.currentProfessional.value.professionalId;
-
       if (professionalId == null || professionalId <= 0) {
         Fluttertoast.showToast(msg: "Invalid professional ID");
         return;
       }
-
       final postIndex = _posts.indexWhere((post) => post['id'] == postId);
       if (postIndex == -1) return;
-
       final post = _posts[postIndex];
       final existingReaction = post['user_reaction'];
       final isRemoving = existingReaction == reactionType;
@@ -215,7 +190,6 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       setState(() {
         post['user_reaction'] = isRemoving ? null : reactionType;
         final reactions = Map<String, int>.from(post['prof_reactions'] ?? {});
-
         if (isRemoving) {
           reactions[reactionType] = (reactions[reactionType] ?? 1) - 1;
         } else {
@@ -224,7 +198,6 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
           }
           reactions[reactionType] = (reactions[reactionType] ?? 0) + 1;
         }
-
         post['prof_reactions'] = reactions;
       });
 
@@ -241,13 +214,11 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       if (response.statusCode != 200) {
         setState(() {
           post['user_reaction'] = existingReaction;
-          post['prof_reactions'] = Map<String, int>.from(post['prof_reactions']);
         });
         throw Exception('Failed to update reaction');
       }
 
       await _fetchReactionsForPost(postId, post);
-
     } catch (e) {
       if (kDebugMode) {
         print("Error reacting: $e");
@@ -259,34 +230,29 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
   Future<void> _addComment(int postId, String commentText) async {
     if (commentText.isEmpty) return;
     int postIndex = _posts.indexWhere((p) => p['id'] == postId);
-
-
     try {
-
-      _commentController[postId]?.clear();
-
-      String professionalID = currentProfessional.currentProfessional.value.professionalId.toString();
-
-      int postIndex = _posts.indexWhere((p) => p['id'] == postId);
-      if (postIndex != -1) {
-        setState(() {
-          _posts[postIndex]['prof_comments'].insert(0, {
-            'username': currentProfessional.currentProfessional.value.username,
-            'comment_text': commentText,
-            'temporary': true
-          });
+      setState(() {
+        if (_posts[postIndex]['prof_comments'] == null) {
+          _posts[postIndex]['prof_comments'] = [];
+        }
+        _posts[postIndex]['prof_comments'].insert(0, {
+          'username': currentProfessional.currentProfessional.value.username,
+          'comment_text': commentText,
+          'temporary': true
         });
-        await _savePostsLocally();
-      }
+      });
+      await _savePostsLocally();
 
       final response = await http.post(
         Uri.parse(API.addProfComment),
-        body: {
-          'report_id': postId.toString(),
-          'professional_id': professionalID,
-          'comment_text': commentText
-        },
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'report_id': postId,
+          'professional_id': currentProfessional.currentProfessional.value.professionalId,
+          'comment_text': commentText,
+        }),
       );
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success']) {
@@ -296,22 +262,13 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
           await _fetchSinglePostComments(postId);
           await _savePostsLocally();
         }
-      }
-
-      if (response.statusCode != 200) {
-        final data =  jsonDecode(response.body);
-        if(data['success']){
-          await _fetchSinglePostComments(postId);
-        }
+      } else {
         if (kDebugMode) {
           print("Failed to add comment: ${response.body}");
-          Fluttertoast.showToast(msg: "Failed to add comment.");
         }
         _fetchReports();
-        _commentController[postId]?.clear();
-      } /*else {
-        Future.delayed(Duration(milliseconds: 500), _fetchReports);
-      }*/
+      }
+      _commentController[postId]?.clear();
     } catch (e) {
       setState(() {
         _posts[postIndex]['prof_comments'].removeWhere((c) => c['temporary'] == true);
@@ -319,26 +276,18 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       Fluttertoast.showToast(msg: "Failed to post comment");
     }
   }
+
   Future<void> _fetchSinglePostComments(int postId) async {
     try {
-      final response = await http.get(
-          Uri.parse('${API.fetchProfComment}?id=$postId')
-      );
-
+      final response = await http.get(Uri.parse('${API.fetchProfComment}?id=$postId'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success']) {
           setState(() {
             final postIndex = _posts.indexWhere((p) => p['id'] == postId);
             if (postIndex != -1) {
-              List<dynamic> tempComments = _posts[postIndex]['prof_comments']
-                  .where((c) => c['temporary'] == true)
-                  .toList();
-
-              _posts[postIndex]['prof_comments'] = [
-                ...tempComments,
-                ...data['comments']
-              ];
+              // Replace the entire comments list with the fetched comments
+              _posts[postIndex]['prof_comments'] = data['comments'];
             }
           });
           await _savePostsLocally();
@@ -364,34 +313,27 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
           children: [
             // Report Information
             _buildReportInfo(post),
-            SizedBox(height: 10),
-
+            const SizedBox(height: 10),
             // Images of the Post
             if (post['image_urls'] != null && post['image_urls'].isNotEmpty)
               _buildPostImages(post),
-
             // Reactions Section
             _buildReactions(post),
-            SizedBox(height: 8),
-
+            const SizedBox(height: 8),
             // Comments Section
             _buildComments(post),
-            SizedBox(height: 12),
-
-            // Add the Select as Job button here
+            const SizedBox(height: 12),
+            // Select as Job button
             Center(
               child: ElevatedButton(
                 onPressed: () => _assignJob(post['id']),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.redAccent,
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                 ),
-                child: Text(
+                child: const Text(
                   "Select as Job",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -405,12 +347,12 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Report ID: ${post['id']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
-        Text(post['description'], style: TextStyle(color: Colors.white, fontSize: 16)),
-        SizedBox(height: 8),
-        Text("${post['reported_at']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
-        SizedBox(height: 8),
-        Text("Reported by: ${post['username']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
+        Text("Report ID: ${post['id']}", style: const TextStyle(color: Colors.white70, fontSize: 14)),
+        Text(post['description'], style: const TextStyle(color: Colors.white, fontSize: 16)),
+        const SizedBox(height: 8),
+        Text("${post['reported_at']}", style: const TextStyle(color: Colors.white70, fontSize: 14)),
+        const SizedBox(height: 8),
+        Text("Reported by: ${post['username']}", style: const TextStyle(color: Colors.white70, fontSize: 14)),
       ],
     );
   }
@@ -443,14 +385,10 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
     return Row(
       children: [
         _reactionButton(post, "upvote", Icons.thumb_up, Colors.blue),
-        Text("${post['prof_reactions']?['upvote'] ?? 0}",
-            style: TextStyle(color: Colors.white)),
-
-        SizedBox(width: 8), // Add spacing
-
+        Text("${post['prof_reactions']?['upvote'] ?? 0}", style: const TextStyle(color: Colors.white)),
+        const SizedBox(width: 8),
         _reactionButton(post, "downvote", Icons.thumb_down, Colors.red),
-        Text("${post['prof_reactions']?['downvote'] ?? 0}",
-            style: TextStyle(color: Colors.white)),
+        Text("${post['prof_reactions']?['downvote'] ?? 0}", style: const TextStyle(color: Colors.white)),
       ],
     );
   }
@@ -462,7 +400,7 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
         color: post['user_reaction'] == reactionType ? color : Colors.white,
       ),
       onPressed: () => _reactToPost(post['id'], reactionType),
-      splashColor: color.withOpacity(0.3), // Adds a subtle splash effect
+      splashColor: color.withOpacity(0.3),
     );
   }
 
@@ -471,7 +409,7 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       children: [
         ListView.builder(
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: post['prof_comments']?.length ?? 0,
           itemBuilder: (context, index) {
             final comment = post['prof_comments'][index];
@@ -485,44 +423,33 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
 
   Widget _buildCommentCard(Map<String, dynamic> comment) {
     return Card(
-      color: comment['temporary'] == true
-          ? Colors.grey[700]
-          : Colors.grey[850],
+      color: comment['temporary'] == true ? Colors.grey[700] : Colors.grey[850],
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       elevation: 4,
       child: ListTile(
-        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         leading: CircleAvatar(
           backgroundColor: Colors.blueAccent,
-          child: Text(comment['username'][0].toUpperCase(),
-              style: TextStyle(color: Colors.white)),
+          child: Text(comment['username'][0].toUpperCase(), style: const TextStyle(color: Colors.white)),
         ),
         title: Text(
           comment['username'],
-          style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14
-          ),
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               comment['comment_text'],
-              style: TextStyle(color: Colors.white70, fontSize: 12),
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
             ),
             if (comment['temporary'] == true)
               Text(
                 "Posting...",
-                style: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 10,
-                    fontStyle: FontStyle.italic
-                ),
+                style: TextStyle(color: Colors.grey[400], fontSize: 10, fontStyle: FontStyle.italic),
               ),
           ],
         ),
@@ -536,7 +463,7 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       controller: _commentController[reportId] ??= TextEditingController(),
       decoration: InputDecoration(
         hintText: "Add a comment...",
-        hintStyle: TextStyle(color: Colors.white54),
+        hintStyle: const TextStyle(color: Colors.white54),
         filled: true,
         fillColor: Colors.grey[800],
         border: OutlineInputBorder(
@@ -544,7 +471,7 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
           borderSide: BorderSide.none,
         ),
       ),
-      style: TextStyle(color: Colors.white),
+      style: const TextStyle(color: Colors.white),
       onSubmitted: (value) {
         _addComment(reportId, value);
         _commentController[reportId]?.clear();
@@ -555,8 +482,6 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
-    // Filter reports by forum
     List<dynamic> filteredReports = _selectedForum == "All"
         ? _posts
         : _posts.where((report) => report['forum'] == _selectedForum).toList();
@@ -564,7 +489,7 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text("Professional Dashboard"),
+        title: const Text("Professional Dashboard"),
         backgroundColor: Colors.black,
         actions: [
           DropdownButton<String>(
@@ -573,10 +498,7 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
             items: _forums.map((forum) {
               return DropdownMenuItem(
                 value: forum,
-                child: Text(
-                  forum,
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: Text(forum, style: const TextStyle(color: Colors.white)),
               );
             }).toList(),
             onChanged: (value) {
@@ -598,14 +520,14 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
             ),
           ),
           _posts.isEmpty
-              ? Center(child: CircularProgressIndicator())
+              ? const Center(child: CircularProgressIndicator())
               : ListView.builder(
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: filteredReports.length,
-                  itemBuilder: (context, index) {
-                    final report = filteredReports[index];
-                    return _buildPostCard(report);
-              },
+            padding: const EdgeInsets.all(16.0),
+            itemCount: filteredReports.length,
+            itemBuilder: (context, index) {
+              final report = filteredReports[index];
+              return _buildPostCard(report);
+            },
           ),
         ],
       ),
