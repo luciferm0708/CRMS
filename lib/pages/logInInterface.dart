@@ -23,11 +23,7 @@ class _LogininterfaceState extends State<Logininterface> {
       Navigator.push(context, MaterialPageRoute(builder: (context) => const Login()));
     } else if (selectedUserType == "Professionals") {
       Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfLogin()));
-    } /*else if (selectedUserType == "Shopkeeper") {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const ShopkeeperRegister()));
-    } else if (selectedUserType == "General People") {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const GeneralPeopleRegister()));
-    }*/
+    }
   }
 
   @override
@@ -37,71 +33,67 @@ class _LogininterfaceState extends State<Logininterface> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 5),
+            const SizedBox(height: 20),
             const Text(
-              "User Selection",
+              "Select User Type",
               style: TextStyle(
-                color: Colors.red,
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
+                color: Color(0xFF2D4059), // Navy blue
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
             MySelectionTile(
               title: "People",
               value: "People",
-              textColor: Colors.black,
               groupValue: selectedUserType,
-              onChanged: (value) {
-                setState(() {
-                  selectedUserType = value!;
-                });
-              },
+              onChanged: (value) => setState(() => selectedUserType = value!),
               height: 80,
               width: 300,
-              backgroundColor: Colors.purpleAccent,
-              borderColor: Colors.deepPurpleAccent,
+              backgroundColor: Color(0xFF5C8D89).withOpacity(0.1), // Teal overlay
+              borderColor: Color(0xFF5C8D89), // Muted teal
+              textColor: Color(0xFF2D4059), // Navy text
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 15),
             MySelectionTile(
               title: "Professionals",
               value: "Professionals",
               groupValue: selectedUserType,
-              onChanged: (value) {
-                setState(() {
-                  selectedUserType = value!;
-                });
-              },
+              onChanged: (value) => setState(() => selectedUserType = value!),
               height: 80,
               width: 300,
-              backgroundColor: Colors.purpleAccent,
-              borderColor: Colors.deepPurpleAccent,
+              backgroundColor: Color(0xFF5C8D89).withOpacity(0.1),
+              borderColor: Color(0xFF5C8D89),
+              textColor: Color(0xFF2D4059),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
             MyButton(
-              text: "Submit",
+              text: "Continue",
               onTap: navigateToRegisterPage,
-              height: 45.0,
-              width: 120.0,
-              color: Colors.purpleAccent,
-              borderColor: Colors.transparent,
+              height: 50,
+              width: 200,
+              color: Color(0xFF5C8D89), // Muted teal
+              borderColor: Color(0xFF445A67), // Darker teal
             ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  "Don't have an account?",
-                  style: TextStyle(color: Colors.redAccent),
+                  "New user? ",
+                  style: TextStyle(color: Color(0xFF4A6572)), // Slate grey
                 ),
-                const SizedBox(width: 5),
                 GestureDetector(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const UserType()));
-                  },
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const UserType()),
+                  ),
                   child: const Text(
-                    "Register!",
-                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                    "Create account",
+                    style: TextStyle(
+                      color: Color(0xFF5C8D89), // Muted teal
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],

@@ -76,6 +76,7 @@ class _ProfessionalRegistrationState extends State<ProfessionalRegistration> {
       Fluttertoast.showToast(msg: e.toString());
     }
   }
+
   Future<void> saveProfessionalRecord() async {
     try {
       var res = await http.post(
@@ -117,9 +118,15 @@ class _ProfessionalRegistrationState extends State<ProfessionalRegistration> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
+    // Define a common text style for the labels
+    const commonTextStyle = TextStyle(
+      color: Color(0xFF4A6572), // Navy/teal
+      fontWeight: FontWeight.w500,
+      fontSize: 16,
+    );
+
     return BackGround(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -127,40 +134,37 @@ class _ProfessionalRegistrationState extends State<ProfessionalRegistration> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-            Image.asset(
-            'assets/crms.png',
-            height: 100,
-            width: 100,
-          ),
-            const SizedBox(height: 5),
-            const Text(
-              "Let's create an account",
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
+              Image.asset(
+                'assets/crms.png',
+                height: 100,
+                width: 100,
               ),
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
+              const Text(
+                "Let's create an account",
+                style: TextStyle(
+                  color: Color(0xFF2D4059), // Navy blue
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 20),
               Form(
                 key: formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Profession Type
                     const Text(
                       "Profession Type",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                      textAlign: TextAlign.left,
+                      style: commonTextStyle,
                     ),
                     MyTextField(
                       controller: professionTypeController,
                       hintText: "Enter Profession Type (e.g., Police, Detective)",
+                      fillColors: Colors.grey[100],
+                      borderColor: const Color(0xFFB0BEC5),
                       obscureText: false,
-                      fillColors: Colors.purpleAccent,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Profession type is required';
@@ -169,19 +173,17 @@ class _ProfessionalRegistrationState extends State<ProfessionalRegistration> {
                       },
                     ),
                     const SizedBox(height: 20),
+                    // First Name
                     const Text(
                       "First Name",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: commonTextStyle,
                       textAlign: TextAlign.left,
                     ),
                     MyTextField(
                       controller: firstNameController,
                       hintText: "Enter First Name",
-                      fillColors: Colors.purpleAccent,
+                      fillColors: Colors.grey[100],
+                      borderColor: const Color(0xFFB0BEC5),
                       obscureText: false,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -190,20 +192,18 @@ class _ProfessionalRegistrationState extends State<ProfessionalRegistration> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 20,),
+                    const SizedBox(height: 20),
+                    // Last Name
                     const Text(
                       "Last Name",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: commonTextStyle,
                       textAlign: TextAlign.left,
                     ),
                     MyTextField(
                       controller: lastNameController,
                       hintText: "Enter Last Name",
-                      fillColors: Colors.purpleAccent,
+                      fillColors: Colors.grey[100],
+                      borderColor: const Color(0xFFB0BEC5),
                       obscureText: false,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -212,20 +212,18 @@ class _ProfessionalRegistrationState extends State<ProfessionalRegistration> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 20,),
+                    const SizedBox(height: 20),
+                    // Username
                     const Text(
                       "Username",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: commonTextStyle,
                       textAlign: TextAlign.left,
                     ),
                     MyTextField(
                       controller: usernameController,
                       hintText: "Enter Username",
-                      fillColors: Colors.purpleAccent,
+                      fillColors: Colors.grey[100],
+                      borderColor: const Color(0xFFB0BEC5),
                       obscureText: false,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -234,20 +232,18 @@ class _ProfessionalRegistrationState extends State<ProfessionalRegistration> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 20,),
+                    const SizedBox(height: 20),
+                    // Email
                     const Text(
                       "Email",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: commonTextStyle,
                       textAlign: TextAlign.left,
                     ),
                     MyTextField(
                       controller: emailController,
                       hintText: "Enter Email",
-                      fillColors: Colors.purpleAccent,
+                      fillColors: Colors.grey[100],
+                      borderColor: const Color(0xFFB0BEC5),
                       obscureText: false,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -256,36 +252,32 @@ class _ProfessionalRegistrationState extends State<ProfessionalRegistration> {
                         return null;
                       },
                     ),
-                    const SizedBox(height:20),
+                    const SizedBox(height: 20),
+                    // Organization Name
                     const Text(
                       "Organization Name",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: commonTextStyle,
                       textAlign: TextAlign.left,
                     ),
                     MyTextField(
                       controller: organizationNameController,
-                      fillColors: Colors.purpleAccent,
                       hintText: "Enter Organization Name",
+                      fillColors: Colors.grey[100],
+                      borderColor: const Color(0xFFB0BEC5),
                       obscureText: false,
                     ),
-                    const SizedBox(height: 20,),
+                    const SizedBox(height: 20),
+                    // License Number
                     const Text(
                       "License Number",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: commonTextStyle,
                       textAlign: TextAlign.left,
                     ),
                     MyTextField(
                       controller: licenseNumberController,
                       hintText: "Enter License Number",
-                      fillColors: Colors.purpleAccent,
+                      fillColors: Colors.grey[100],
+                      borderColor: const Color(0xFFB0BEC5),
                       obscureText: false,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -294,19 +286,18 @@ class _ProfessionalRegistrationState extends State<ProfessionalRegistration> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 20,),
+                    const SizedBox(height: 20),
+                    // NID Number
                     const Text(
                       "NID Number",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: commonTextStyle,
                       textAlign: TextAlign.left,
                     ),
                     MyTextField(
                       controller: nidNumberController,
                       hintText: "Enter NID Number",
+                      fillColors: Colors.grey[100],
+                      borderColor: const Color(0xFFB0BEC5),
                       obscureText: false,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -315,36 +306,32 @@ class _ProfessionalRegistrationState extends State<ProfessionalRegistration> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 20,),
+                    const SizedBox(height: 20),
+                    // Expertise Area
                     const Text(
                       "Expertise Area",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: commonTextStyle,
                       textAlign: TextAlign.left,
                     ),
                     MyTextField(
-                      fillColors: Colors.purpleAccent,
                       controller: expertiseAreaController,
                       hintText: "Enter Expertise Area",
+                      fillColors: Colors.grey[100],
+                      borderColor: const Color(0xFFB0BEC5),
                       obscureText: false,
                     ),
-                    const SizedBox(height:20,),
+                    const SizedBox(height: 20),
+                    // Password
                     const Text(
                       "Password",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: commonTextStyle,
                       textAlign: TextAlign.left,
                     ),
                     MyTextField(
                       controller: passController,
-                      fillColors: Colors.purpleAccent,
                       hintText: "Enter Password",
+                      fillColors: Colors.grey[100],
+                      borderColor: const Color(0xFFB0BEC5),
                       obscureText: !showPassword,
                       showToggle: true,
                       onToggle: () {
@@ -359,20 +346,18 @@ class _ProfessionalRegistrationState extends State<ProfessionalRegistration> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 20,),
+                    const SizedBox(height: 20),
+                    // Confirm Password
                     const Text(
                       "Confirm Password",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                      style: commonTextStyle,
                       textAlign: TextAlign.left,
                     ),
                     MyTextField(
-                      fillColors: Colors.purpleAccent,
                       controller: confirmPassController,
                       hintText: "Confirm Password",
+                      fillColors: Colors.grey[100],
+                      borderColor: const Color(0xFFB0BEC5),
                       obscureText: !showConfirmPassword,
                       showToggle: true,
                       onToggle: () {
@@ -393,16 +378,15 @@ class _ProfessionalRegistrationState extends State<ProfessionalRegistration> {
                     Center(
                       child: MyButton(
                         text: 'Register',
-                        color: Colors.deepPurple,
-                        borderColor: Colors.transparent,
+                        color: const Color(0xFF5C8D89), // Muted teal
+                        borderColor: const Color(0xFF445A67), // Darker teal
                         onTap: () async {
                           if (formKey.currentState!.validate()) {
                             validateEmail();
-
                           }
                         },
-                        height: 45,
-                        width: 120,
+                        height: 50.0,
+                        width: double.infinity,
                       ),
                     ),
                   ],

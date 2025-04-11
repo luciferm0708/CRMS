@@ -1,4 +1,5 @@
 import 'package:crime_record_management_system/pages/fragments/home.dart';
+import 'package:crime_record_management_system/pages/get_started.dart';
 import 'package:crime_record_management_system/pages/logInInterface.dart';
 import 'package:crime_record_management_system/pages/people/preferences/people_preferences.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Crime Report Management System',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -25,7 +27,7 @@ class MyApp extends StatelessWidget {
           {
             if(dataSnapShot.data == null)
               {
-                return Logininterface();
+                return GetStartedPage();
               }
             else
               {

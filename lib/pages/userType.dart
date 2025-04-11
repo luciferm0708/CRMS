@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:crime_record_management_system/components/button.dart';
 import 'package:crime_record_management_system/components/selection_tile.dart';
 
+import 'logInInterface.dart';
+
 
 class UserType extends StatefulWidget {
   const UserType({super.key});
@@ -32,82 +34,78 @@ class _UserTypeState extends State<UserType> {
   @override
   Widget build(BuildContext context) {
     return BackGround(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 5),
-              const Text(
-                "User Selection",
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 20),
+            const Text(
+              "Create Account",
+              style: TextStyle(
+                color: Color(0xFF2D4059), // Navy blue
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 30),
+            MySelectionTile(
+              title: "People",
+              value: "People",
+              groupValue: selectedUserType,
+              onChanged: (value) => setState(() => selectedUserType = value!),
+              height: 80,
+              width: 300,
+              backgroundColor: Color(0xFF5C8D89).withOpacity(0.1),
+              borderColor: Color(0xFF5C8D89),
+              textColor: Color(0xFF2D4059),
+            ),
+            const SizedBox(height: 15),
+            MySelectionTile(
+              title: "Professionals",
+              value: "Professionals",
+              groupValue: selectedUserType,
+              onChanged: (value) => setState(() => selectedUserType = value!),
+              height: 80,
+              width: 300,
+              backgroundColor: Color(0xFF5C8D89).withOpacity(0.1),
+              borderColor: Color(0xFF5C8D89),
+              textColor: Color(0xFF2D4059),
+            ),
+            const SizedBox(height: 30),
+            MyButton(
+              text: "Continue",
+              onTap: navigateToRegisterPage,
+              height: 50,
+              width: 200,
+              color: Color(0xFF5C8D89),
+              borderColor: Color(0xFF445A67),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Existing user? ",
+                  style: TextStyle(color: Color(0xFF4A6572)),
                 ),
-              ),
-              const SizedBox(height: 20),
-              MySelectionTile(
-                title: "People",
-                value: "People",
-                textColor: Colors.black,
-                groupValue: selectedUserType,
-                onChanged: (value) {
-                  setState(() {
-                    selectedUserType = value!;
-                  });
-                },
-                height: 80,
-                width: 300,
-                backgroundColor: Colors.purpleAccent,
-                borderColor: Colors.deepPurpleAccent,
-              ),
-              const SizedBox(height: 10),
-              MySelectionTile(
-                title: "Professionals",
-                value: "Professionals",
-                groupValue: selectedUserType,
-                onChanged: (value) {
-                  setState(() {
-                    selectedUserType = value!;
-                  });
-                },
-                height: 80,
-                width: 300,
-                backgroundColor: Colors.purpleAccent,
-                borderColor: Colors.deepPurpleAccent,
-              ),
-              const SizedBox(height: 20),
-              MyButton(
-                text: "Submit",
-                onTap: navigateToRegisterPage,
-                height: 45.0,
-                width: 120.0,
-                color: Colors.purpleAccent,
-                borderColor: Colors.transparent,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Already have an account?",
-                    style: TextStyle(color: Colors.redAccent),
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Logininterface()),
                   ),
-                  const SizedBox(width: 5),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const Login()));
-                    },
-                    child: const Text(
-                      "Log in!",
-                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  child: const Text(
+                    "Sign in",
+                    style: TextStyle(
+                      color: Color(0xFF5C8D89),
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
 }

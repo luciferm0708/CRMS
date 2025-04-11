@@ -10,7 +10,7 @@ class GetStartedPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BackGround(
       child: Padding(
-        padding: const EdgeInsets.only(top: 60.0), // Adjust this value to move the content higher
+        padding: const EdgeInsets.only(top: 60.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -20,25 +20,22 @@ class GetStartedPage extends StatelessWidget {
               width: 170,
             ),
             const Text(
-              'Crime Report',
+              'Welcome to',
               style: TextStyle(
-                fontFamily: 'Roboto', // Change to your desired font
-                color: Colors.purple,
-                fontSize: 20, // Adjusted size for better visibility
-                fontWeight: FontWeight.bold,
+                color: Color(0xFF2D4059), // Navy blue
+                fontSize: 24,
+                fontWeight: FontWeight.w500, // Medium weight
               ),
             ),
             const Text(
-              'Management System',
+              'TODONTO',
               style: TextStyle(
-                fontFamily: 'Roboto', // Change to your desired font
-                color: Colors.purple,
-                fontSize: 20, // Adjusted size for better visibility
+                color: Color(0xFF2D4059), // Navy blue
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 100),
-            // Use the custom MyButton
             MyButton(
               text: 'Get Started',
               onTap: () {
@@ -47,10 +44,10 @@ class GetStartedPage extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const UserType()),
                 );
               },
-              height: 50.0,  // Adjusted height
-              width: 200.0,  // Adjusted width
-              color: Colors.purpleAccent,  // Custom button color
-              borderColor: Colors.deepPurpleAccent,  // Custom border color
+              height: 50.0,
+              width: 200.0,
+              color: Color(0xFF5C8D89), // Muted teal
+              borderColor: Color(0xFF445A67), // Darker teal
             ),
           ],
         ),
@@ -58,3 +55,4 @@ class GetStartedPage extends StatelessWidget {
     );
   }
 }
+

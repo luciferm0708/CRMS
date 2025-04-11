@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 class API{
-  static const hostConnection = kIsWeb ? "http://192.168.68.108/api_crms" : "http://10.0.2.2/api_crms";
+  static const hostConnection = "http://192.168.68.108/api_crms";
   static const hostConnectionPeople = "$hostConnection/people";
   static const peopleRegister = "$hostConnection/people/peopleReg.php";
   static const validateEmail = "$hostConnection/people/validate_email.php";

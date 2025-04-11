@@ -113,7 +113,6 @@ class _PeopleRegisterState extends State<PeopleRegister> {
     }
   }
 
-
   Future<void> _selectDate(BuildContext context) async {
     DateTime? picked = await showDatePicker(
       context: context,
@@ -123,13 +122,20 @@ class _PeopleRegisterState extends State<PeopleRegister> {
     );
     if (picked != null) {
       setState(() {
-        dobController.text = DateFormat('yyyy-MM-dd').format(picked); // Formatting the date
+        dobController.text = DateFormat('yyyy-MM-dd').format(picked);
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Define a common text style for all the labels
+    const commonTextStyle = TextStyle(
+      color: Color(0xFF4A6572), // Navy/teal color
+      fontWeight: FontWeight.w500,
+      fontSize: 16,
+    );
+
     return BackGround(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -146,9 +152,9 @@ class _PeopleRegisterState extends State<PeopleRegister> {
               const Text(
                 "Let's create an account",
                 style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2D4059), // Navy blue
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 20),
@@ -159,20 +165,18 @@ class _PeopleRegisterState extends State<PeopleRegister> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // First Name
                       const Text(
                         "First Name",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                        style: commonTextStyle,
                         textAlign: TextAlign.left,
                       ),
                       MyTextField(
                         controller: firstnameController,
                         hintText: "Enter First Name",
                         obscureText: false,
-                        fillColors: Colors.purpleAccent,
+                        fillColors: Colors.grey[100],
+                        borderColor: const Color(0xFFB0BEC5),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your first name';
@@ -181,20 +185,18 @@ class _PeopleRegisterState extends State<PeopleRegister> {
                         },
                       ),
                       const SizedBox(height: 10),
+                      // Last Name
                       const Text(
                         "Last Name",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                        style: commonTextStyle,
                         textAlign: TextAlign.left,
                       ),
                       MyTextField(
                         controller: lastnameController,
                         hintText: "Enter Last Name",
                         obscureText: false,
-                        fillColors: Colors.purpleAccent,
+                        fillColors: Colors.grey[100],
+                        borderColor: const Color(0xFFB0BEC5),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your last name';
@@ -203,20 +205,18 @@ class _PeopleRegisterState extends State<PeopleRegister> {
                         },
                       ),
                       const SizedBox(height: 10),
+                      // Username
                       const Text(
                         "Username",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                        style: commonTextStyle,
                         textAlign: TextAlign.left,
                       ),
                       MyTextField(
                         controller: usernameController,
                         hintText: "Enter Username",
                         obscureText: false,
-                        fillColors: Colors.purpleAccent,
+                        fillColors: Colors.grey[100],
+                        borderColor: const Color(0xFFB0BEC5),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your username';
@@ -225,20 +225,18 @@ class _PeopleRegisterState extends State<PeopleRegister> {
                         },
                       ),
                       const SizedBox(height: 10),
+                      // Gender
                       const Text(
                         "Gender",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                        style: commonTextStyle,
                         textAlign: TextAlign.left,
                       ),
                       MyTextField(
                         controller: genderController,
                         hintText: "Enter Gender",
                         obscureText: false,
-                        fillColors: Colors.purpleAccent,
+                        fillColors: Colors.grey[100],
+                        borderColor: const Color(0xFFB0BEC5),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your gender';
@@ -247,20 +245,18 @@ class _PeopleRegisterState extends State<PeopleRegister> {
                         },
                       ),
                       const SizedBox(height: 10),
+                      // NID
                       const Text(
                         "NID",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                        style: commonTextStyle,
                         textAlign: TextAlign.left,
                       ),
                       MyTextField(
                         controller: nidController,
                         hintText: "Enter NID",
                         obscureText: false,
-                        fillColors: Colors.purpleAccent,
+                        fillColors: Colors.grey[100],
+                        borderColor: const Color(0xFFB0BEC5),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your NID';
@@ -269,24 +265,22 @@ class _PeopleRegisterState extends State<PeopleRegister> {
                         },
                       ),
                       const SizedBox(height: 10),
+                      // Date of Birth
                       const Text(
                         "Date of Birth",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                        style: commonTextStyle,
                         textAlign: TextAlign.left,
                       ),
                       MyTextField(
                         controller: dobController,
                         hintText: "Select Date of Birth",
                         obscureText: false,
-                        fillColors: Colors.purpleAccent,
-                        readOnly: true,  // Make the field read-only
+                        fillColors: Colors.grey[100],
+                        borderColor: const Color(0xFFB0BEC5),
+                        readOnly: true,
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.calendar_today, color: Colors.black),
-                          onPressed: () => _selectDate(context),  // Trigger the date picker
+                          onPressed: () => _selectDate(context),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -295,20 +289,19 @@ class _PeopleRegisterState extends State<PeopleRegister> {
                           return null;
                         },
                       ),
+                      const SizedBox(height: 10),
+                      // Email
                       const Text(
                         "Email",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                        style: commonTextStyle,
                         textAlign: TextAlign.left,
                       ),
                       MyTextField(
                         controller: emailController,
                         hintText: "Enter email",
                         obscureText: false,
-                        fillColors: Colors.purpleAccent,
+                        fillColors: Colors.grey[100],
+                        borderColor: const Color(0xFFB0BEC5),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email';
@@ -317,13 +310,10 @@ class _PeopleRegisterState extends State<PeopleRegister> {
                         },
                       ),
                       const SizedBox(height: 10),
+                      // Password
                       const Text(
                         "Password",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                        style: commonTextStyle,
                         textAlign: TextAlign.left,
                       ),
                       MyTextField(
@@ -331,7 +321,8 @@ class _PeopleRegisterState extends State<PeopleRegister> {
                         hintText: "Enter password",
                         obscureText: !showPassword,
                         showToggle: true,
-                        fillColors: Colors.purpleAccent,
+                        fillColors: Colors.grey[100],
+                        borderColor: const Color(0xFFB0BEC5),
                         onToggle: () {
                           setState(() {
                             showPassword = !showPassword;
@@ -345,13 +336,10 @@ class _PeopleRegisterState extends State<PeopleRegister> {
                         },
                       ),
                       const SizedBox(height: 10),
+                      // Confirm Password
                       const Text(
                         "Confirm Password",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                        style: commonTextStyle,
                         textAlign: TextAlign.left,
                       ),
                       MyTextField(
@@ -359,7 +347,8 @@ class _PeopleRegisterState extends State<PeopleRegister> {
                         hintText: "Re-enter password",
                         obscureText: !showConfirmPassword,
                         showToggle: true,
-                        fillColors: Colors.purpleAccent,
+                        fillColors: Colors.grey[100],
+                        borderColor: const Color(0xFFB0BEC5),
                         onToggle: () {
                           setState(() {
                             showConfirmPassword = !showConfirmPassword;
@@ -378,12 +367,11 @@ class _PeopleRegisterState extends State<PeopleRegister> {
                       Center(
                         child: MyButton(
                           text: 'Register',
-                          color: Colors.deepPurple,
-                          borderColor: Colors.transparent,
+                          color: const Color(0xFF5C8D89), // Muted teal
+                          borderColor: const Color(0xFF445A67), // Darker teal
                           onTap: () async {
                             if (formKey.currentState!.validate()) {
                               validateEmail();
-
                             }
                           },
                           height: 45,
@@ -396,20 +384,19 @@ class _PeopleRegisterState extends State<PeopleRegister> {
                         children: [
                           const Text(
                             "Already a user?",
-                            style: TextStyle(color: Colors.red),
+                            style: commonTextStyle,
                           ),
                           const SizedBox(width: 5),
                           GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => const Login()),
+                                MaterialPageRoute(builder: (context) => const Login()),
                               );
                             },
                             child: const Text(
                               "Log in!",
-                              style: TextStyle(color: Colors.red),
+                              style: commonTextStyle,
                             ),
                           ),
                         ],

@@ -7,6 +7,7 @@ class MyTextField extends StatelessWidget {
   final bool? readOnly;
   final Widget? suffixIcon;
   final Color? fillColors;
+  final Color? borderColor;  // New border color property
   final bool? showToggle;
   final VoidCallback? onToggle;
   final String? Function(String?)? validator;
@@ -19,6 +20,7 @@ class MyTextField extends StatelessWidget {
     this.readOnly = false,
     this.suffixIcon,
     this.fillColors,
+    this.borderColor,  // Added parameter
     this.showToggle,
     this.onToggle,
     this.validator,
@@ -32,22 +34,31 @@ class MyTextField extends StatelessWidget {
       readOnly: readOnly ?? false,
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: fillColors ?? Colors.deepPurpleAccent, width: 2.0),
+          borderSide: BorderSide(
+            color: borderColor ?? Colors.grey,  // Use borderColor or default
+            width: 1.5,
+          ),
           borderRadius: BorderRadius.circular(12),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: fillColors ?? Colors.deepPurpleAccent, width: 2.5),
+          borderSide: BorderSide(
+            color: borderColor ?? Colors.blueGrey,  // Use borderColor or default
+            width: 2.0,
+          ),
           borderRadius: BorderRadius.circular(12),
         ),
         fillColor: fillColors,
-        filled: true,
+        filled: fillColors != null,
         hintText: hintText,
-        hintStyle: const TextStyle(color: Colors.blueGrey),
+        hintStyle: TextStyle(
+          color: Colors.grey[600],
+          fontSize: 14,
+        ),
         suffixIcon: showToggle == true
             ? IconButton(
           icon: Icon(
             obscureText ? Icons.visibility_off : Icons.visibility,
-            color: Colors.black,
+            color: Colors.grey[700],
           ),
           onPressed: onToggle,
         )
@@ -55,6 +66,10 @@ class MyTextField extends StatelessWidget {
       ),
       onTap: readOnly == true ? () {} : null,
       validator: validator,
+      style: TextStyle(
+        color: Colors.grey[800],
+        fontSize: 16,
+      ),
     );
   }
 }
