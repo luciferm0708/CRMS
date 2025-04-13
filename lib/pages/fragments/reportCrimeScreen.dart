@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:crime_record_management_system/pages/fragments/subscriptionScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -188,18 +189,54 @@ class _ReportCrimeScreenState extends State<ReportCrimeScreen> {
                     ),
                     SizedBox(height: 20),
                     ElevatedButton(
-                      child: Text(
-                        "Submit Report",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
+                        backgroundColor: Color(0xFF5C8D89),
+                        foregroundColor: Colors.white,
+                        side: BorderSide(
+                          color: Color(0xFF000080),
+                          width: 2.5,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
+                        padding: EdgeInsets.symmetric(vertical: 16),
                       ),
                       onPressed: () => _submitReport(context),
+                      child: Text(
+                        "Submit Report",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
+                    SizedBox(height: 16),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF5C8D89),
+                        foregroundColor: Colors.white,
+                        side: BorderSide(
+                          color: Color(0xFF000080),
+                          width: 2.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SubscriptionScreen()),
+                        );
+                      },
+                      child: Text(
+                        "Upgrade for Priority Handling",
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    ),
+
                   ],
                 ),
               ),

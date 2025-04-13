@@ -2,7 +2,6 @@ import 'package:crime_record_management_system/pages/fragments/homeFragmentScree
 import 'package:crime_record_management_system/pages/fragments/profileFragmentScreen.dart';
 import 'package:crime_record_management_system/pages/fragments/reportCrimeScreen.dart';
 import 'package:crime_record_management_system/pages/fragments/settingsScreen.dart';
-import 'package:crime_record_management_system/pages/fragments/tabScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,14 +13,12 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
   // List of screens to navigate to
   final List<Widget> _fragmentScreens = [
     HomeFragmentScreen(),
     ProfileFragmentScreen(),
-    ReportCrimeScreen(onReportSubmitted: () {  },),
+    ReportCrimeScreen(onReportSubmitted: () {}),
     SettingsScreen(),
-    TabScreen(),
   ];
 
   // List of navigation button properties
@@ -43,13 +40,8 @@ class _HomeState extends State<Home> {
     },
     {
       "active_icon": Icons.settings,
-      "non_active_icon" : Icons.settings_outlined,
+      "non_active_icon": Icons.settings_outlined,
       "label": "Settings",
-    },
-    {
-      "active_icon": Icons.table_rows_sharp,
-      "non_active_icon" : Icons.table_rows_outlined,
-      "label": "Tabs",
     },
   ];
 
@@ -58,31 +50,35 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Container(
         color: Colors.black,
         child: Obx(() => _fragmentScreens[_indexNumber.value]),
       ),
-      bottomNavigationBar: Obx(
-            () => BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.red,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF1B1F32),
+          border: Border(top: BorderSide(color: Colors.grey.shade800, width: 0.5)),
+        ),
+        child: Obx(
+              () => BottomNavigationBar(
+            backgroundColor: Colors.transparent,
             currentIndex: _indexNumber.value,
-            onTap: (value) {
-            _indexNumber.value = value;
-            },
+            onTap: (value) => _indexNumber.value = value,
             showSelectedLabels: true,
             showUnselectedLabels: true,
-            selectedItemColor: Colors.deepPurpleAccent,
-            unselectedItemColor: Colors.deepPurple,
+            selectedItemColor: const Color(0xFF80CBC4),
+            unselectedItemColor: const Color(0xFFB0BEC5),
+            elevation: 0,
+            type: BottomNavigationBarType.fixed,
             items: List.generate(_navigationButtonsProperties.length, (index) {
               var navBtnProperty = _navigationButtonsProperties[index];
               return BottomNavigationBarItem(
                 icon: Icon(navBtnProperty["non_active_icon"]),
                 activeIcon: Icon(navBtnProperty["active_icon"]),
                 label: navBtnProperty["label"],
-            );
-          }),
+              );
+            }),
+          ),
         ),
       ),
     );

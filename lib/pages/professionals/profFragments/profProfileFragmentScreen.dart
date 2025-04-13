@@ -355,6 +355,29 @@ class _ProfProfileFragmentScreenState extends State<ProfProfileFragmentScreen> {
                       const SizedBox(height: 20),
                       profInfoItemProfile(Icons.text_snippet_sharp, professional.professionType),
                       const SizedBox(height: 20),
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey,
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 16,),
+                            Expanded(
+                                child: Text(
+                                  "Job has been assigned.",
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                )
+                            )
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       Center(
                         child: Material(
                           color: Colors.redAccent,

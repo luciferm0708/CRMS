@@ -55,15 +55,13 @@ class _ProfHomeState extends State<ProfHome> {
       ),
       bottomNavigationBar: Obx(
             () => BottomNavigationBar(
-          backgroundColor: Colors.red, // Set navigation bar background color to black
-          currentIndex: _indexNumber.value, // Use value directly
-          onTap: (value) {
-            _indexNumber.value = value; // Update the value
-          },
+          backgroundColor: const Color(0xFF1B1F32),
+          currentIndex: _indexNumber.value,
+          onTap: (value) => _indexNumber.value = value,
           showSelectedLabels: true,
           showUnselectedLabels: true,
-          selectedItemColor: Colors.deepPurpleAccent,
-          unselectedItemColor: Colors.deepPurple,
+          selectedItemColor: const Color(0xFF80CBC4),
+          unselectedItemColor: const Color(0xFFB0BEC5),
           items: List.generate(_navigationButtonsProperties.length, (index) {
             var navBtnProperty = _navigationButtonsProperties[index];
             return BottomNavigationBarItem(
@@ -74,6 +72,7 @@ class _ProfHomeState extends State<ProfHome> {
           }),
         ),
       ),
+
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:crime_record_management_system/pages/professionals/profFragments/profProfileFragmentScreen.dart';
 import 'package:crime_record_management_system/pages/professionals/profPreferences/current_professionals.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -99,6 +100,10 @@ class _ProfessionalHomeFragmentScreenState extends State<ProfessionalHomeFragmen
       if (kDebugMode) print("Error assigning job: $e");
       Fluttertoast.showToast(msg: "An error occurred. Please try again.");
     }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const ProfProfileFragmentScreen()),
+    );
   }
 
   Future<void> _loadSavedData() async {
