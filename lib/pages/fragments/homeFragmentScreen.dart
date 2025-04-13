@@ -1,3 +1,6 @@
+import 'package:crime_record_management_system/pages/fragments/profileFragmentScreen.dart';
+import 'package:crime_record_management_system/pages/fragments/settingsScreen.dart';
+import 'package:crime_record_management_system/pages/fragments/subscriptionScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -5,14 +8,16 @@ import 'package:particles_fly/particles_fly.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../api/api.dart';
+import '../people/authentication/logIn.dart';
 import '../people/preferences/current_user.dart';
+import '../people/preferences/people_preferences.dart';
 
 
 class HomeFragmentScreen extends StatefulWidget {
   @override
   _HomeFragmentScreenState createState() => _HomeFragmentScreenState();
 }
-
+//check
 class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
   List<dynamic> _posts = [];
   String _selectedForum = "All";
@@ -178,7 +183,6 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     }
   }*/
 
-// ✅ Fetch reactions from fetchreacts.php for a single post
   Future<void> _fetchReactionsForPost(int postId, Map<String, dynamic> post) async {
     final response = await http.get(
       Uri.parse("${API.fetchReacts}?id=$postId&people_id=${currentUser.currentPeople.value.people_id}"),
@@ -306,50 +310,50 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
     final int reportId = int.tryParse(post['id'].toString()) ?? 0;
 
     return Card(
-      color: Colors.grey[900],
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      elevation: 8,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Report Information
-            _buildReportInfo(post),
+        color: Colors.grey[900],
+        margin: const EdgeInsets.only(bottom: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 8,
+        child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                // Report Information
+                _buildReportInfo(post),
 
             SizedBox(height: 10),
 
             // Images of the Post
             if (post['image_urls'] != null && post['image_urls'].isNotEmpty)
-              _buildPostImages(post),
+        _buildPostImages(post),
 
-            // Reactions Section
-            _buildReactions(post),
+    // Reactions Section
+    _buildReactions(post),
 
-            SizedBox(height: 8),
+    SizedBox(height: 😎,
 
-            // Comments Section
-            _buildComments(post),
-          ],
-        ),
-      ),
+    // Comments Section
+    _buildComments(post),
+    ],
+    ),
+    ),
     );
   }
 
   Widget _buildReportInfo(Map<String, dynamic> post) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Report ID: ${post['id']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
-        Text(post['description'], style: TextStyle(color: Colors.white, fontSize: 16)),
-        SizedBox(height: 8),
-        Text("${post['reported_at']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
-        SizedBox(height: 8),
-        Text("Reported by: ${post['username']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
-      ],
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+    Text("Report ID: ${post['id']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
+    Text(post['description'], style: TextStyle(color: Colors.white, fontSize: 16)),
+    SizedBox(height: 😎,
+    Text("${post['reported_at']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
+    SizedBox(height: 😎,
+    Text("Reported by: ${post['username']}", style: TextStyle(color: Colors.white70, fontSize: 14)),
+    ],
     );
   }
 
@@ -363,12 +367,12 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(😎,
               child: Image.network(
-                post['image_urls'][imageIndex],
-                height: 150,
-                width: 150,
-                fit: BoxFit.cover,
+              post['image_urls'][imageIndex],
+              height: 150,
+              width: 150,
+              fit: BoxFit.cover,
               ),
             ),
           );
@@ -419,56 +423,58 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
 
   Widget _buildCommentCard(Map<String, dynamic> comment) {
     return Card(
-      color: Colors.grey[850],
-      margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(
+        color: Colors.grey[850],
+        margin: const EdgeInsets.only(bottom: 😎,
+        shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-      ),
-      elevation: 4,
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor: Colors.blueAccent,
-          child: Text(comment['username'][0].toUpperCase(), style: TextStyle(color: Colors.white)),
-        ),
-        title: Text(
-          comment['username'],
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-        ),
-        subtitle: Text(
-          comment['comment_text'],
-          style: TextStyle(color: Colors.white70, fontSize: 12),
-        ),
-      ),
+    ),
+    elevation: 4,
+    child: ListTile(
+    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 😎,
+    leading: CircleAvatar(
+    backgroundColor: Colors.blueAccent,
+    child: Text(comment['username'][0].toUpperCase(), style: TextStyle(color: Colors.white)),
+    ),
+    title: Text(
+    comment['username'],
+    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+    ),
+    subtitle: Text(
+    comment['comment_text'],
+    style: TextStyle(color: Colors.white70, fontSize: 12),
+    ),
+    ),
     );
   }
 
   Widget _buildCommentInput(Map<String, dynamic> post) {
     final int reportId = int.tryParse(post['id'].toString()) ?? 0;
     return TextField(
-      controller: _commentController[reportId] ??= TextEditingController(),
-      decoration: InputDecoration(
-        hintText: "Add a comment...",
-        hintStyle: TextStyle(color: Colors.white54),
-        filled: true,
-        fillColor: Colors.grey[800],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
-        ),
-      ),
-      style: TextStyle(color: Colors.white),
-      onSubmitted: (value) {
-        _addComment(reportId, value);
-        _commentController[reportId]?.clear();
-      },
+        controller: _commentController[reportId] ??= TextEditingController(),
+    decoration: InputDecoration(
+    hintText: "Add a comment...",
+    hintStyle: TextStyle(color: Colors.white54),
+    filled: true,
+    fillColor: Colors.grey[800],
+    border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(😎,
+    borderSide: BorderSide.none,
+    ),
+    ),
+    style: TextStyle(color: Colors.white),
+    onSubmitted: (value) {
+    _addComment(reportId, value);
+    _commentController[reportId]?.clear();
+    },
     );
   }
 
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery
+        .of(context)
+        .size;
 
     List<dynamic> filteredPosts = _selectedForum == "All"
         ? _posts
@@ -499,6 +505,124 @@ class _HomeFragmentScreenState extends State<HomeFragmentScreen> {
             },
           ),
         ],
+      ),
+      drawer: Drawer(
+        backgroundColor: Colors.grey[900],
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            UserAccountsDrawerHeader(
+              accountName: Text(
+                currentUser.currentPeople.value.username ?? "Guest",
+                style: TextStyle(color: Colors.white),
+              ),
+              accountEmail: Text(
+                currentUser.currentPeople.value.email ?? "",
+                style: TextStyle(color: Colors.white70),
+              ),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(Icons.person, color: Colors.grey[900]),
+              ),
+              decoration: BoxDecoration(color: Colors.black),
+            ),
+            ListTile(
+              leading: Icon(Icons.home, color: Colors.white),
+              title: Text('Home', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context); // closes drawer
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person, color: Colors.white),
+              title: Text('Profile', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context); // This will close the drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfileFragmentScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.workspace_premium, color: Colors.white),
+              title: Text('Premium', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context); // This will close the drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SubscriptionScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings, color: Colors.white),
+              title: Text('Settings', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context); // This will close the drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsScreen()),
+                );
+              },
+            ),
+            Divider(color: Colors.white24),
+            ListTile(
+                leading: Icon(Icons.logout, color: Colors.white),
+                title: Text('Logout', style: TextStyle(color: Colors.white)),
+                onTap: () async {
+                  // Close the drawer
+                  Navigator.pop(context);
+
+                  // Show a confirmation dialog
+                  final resultRes = await showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        backgroundColor: Colors.black54,
+                        title: const Text(
+                          "Log Out",
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                        content: const Text(
+                          "Are you sure?\nYou want to log out from the Dollars+?",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text(
+                              "No",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop("loggedOut");
+                            },
+                            child: const Text(
+                              "Yes",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                  if (resultRes == "loggedOut") {
+                    await PeoplePref.removePeopleInfo();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Login()),
+                          (Route<dynamic> route) => false,
+                    );
+                  }
+                }
+            ),
+          ],
+        ),
       ),
       body: Stack(
         children: [
