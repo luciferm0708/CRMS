@@ -92,7 +92,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Switch(
               value: _notificationsEnabled,
               onChanged: (value) => setState(() => _notificationsEnabled = value),
-              activeColor: Colors.purpleAccent,
+              activeColor: Color(0xFF5C8D89),
             ),
           ),
           _buildSettingsCard(
@@ -101,7 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Switch(
               value: _darkModeEnabled,
               onChanged: (value) => setState(() => _darkModeEnabled = value),
-              activeColor: Colors.purpleAccent,
+              activeColor: Color(0xFF5C8D89),
             ),
           ),
 
@@ -125,7 +125,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: const Icon(Icons.logout, color: Colors.white),
               label: const Text('Log Out', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
+                backgroundColor: Color(0xFF5C8D89),
                 padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -145,7 +145,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Text(
         title,
         style: const TextStyle(
-          color: Colors.purpleAccent,
+          color: Color(0xFF4A6572),
           fontSize: 16,
           fontWeight: FontWeight.bold,
         ),
